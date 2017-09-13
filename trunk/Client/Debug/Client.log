@@ -1,0 +1,53 @@
+﻿生成启动时间为 2017/9/13 0:14:52。
+     1>项目“C:\Users\Administrator\Documents\Visual Studio 2012\Projects\KDRPC\Client\Client.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D CLIENT_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Debug\Client.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D CLIENT_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\Client.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Client.cpp
+         Client.cpp
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(78): error C2065: “g_CI”: 未声明的标识符
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(78): error C2227: “->QueryArgvPointerNumber”的左边必须指向类/结构/联合/泛型类型
+                 类型是“'unknown-type'”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(79): error C2065: “g_CI”: 未声明的标识符
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(79): error C2227: “->QueryArgvStructSize”的左边必须指向类/结构/联合/泛型类型
+                 类型是“'unknown-type'”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(82): error C2065: “g_CDF”: 未声明的标识符
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(82): error C2228: “.ToFlow”的左边必须有类/结构/联合
+                 类型是“'unknown-type'”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(90): error C2065: “g_CDF”: 未声明的标识符
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(90): error C2228: “.ToFlow”的左边必须有类/结构/联合
+                 类型是“'unknown-type'”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(110): error C2065: “pCWEB”: 未声明的标识符
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(110): error C2227: “->Send”的左边必须指向类/结构/联合/泛型类型
+                 类型是“'unknown-type'”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(116): error C2065: “g_CI”: 未声明的标识符
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(116): error C2227: “->QueryASync”的左边必须指向类/结构/联合/泛型类型
+                 类型是“'unknown-type'”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(120): error C2065: “pasm”: 未声明的标识符
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(120): error C2227: “->push”的左边必须指向类/结构/联合/泛型类型
+                 类型是“'unknown-type'”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(126): error C2065: “g_CI”: 未声明的标识符
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(126): error C2227: “->QueryArgvPointerNumber”的左边必须指向类/结构/联合/泛型类型
+                 类型是“'unknown-type'”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(130): error C2065: “pssm”: 未声明的标识符
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(130): error C2227: “->push”的左边必须指向类/结构/联合/泛型类型
+                 类型是“'unknown-type'”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(146): error C2143: 语法错误 : 缺少“;”(在“*”的前面)
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(146): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(146): error C2061: 语法错误: 标识符“CFunctionInfo”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(176): error C2146: 语法错误: 缺少“;”(在标识符“g_CDF”的前面)
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(176): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(277): error C2143: 语法错误 : 缺少“;”(在“*”的前面)
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(277): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(277): error C2061: 语法错误: 标识符“CWEB”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(287): error C2143: 语法错误 : 缺少“;”(在“*”的前面)
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(287): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(287): error C2061: 语法错误: 标识符“CAsyncStateManage”
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(300): error C2143: 语法错误 : 缺少“;”(在“*”的前面)
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(300): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int
+     1>c:\users\administrator\documents\visual studio 2012\projects\kdrpc\client\client.cpp(300): error C2061: 语法错误: 标识符“CSyncStateManage”
+     1>已完成生成项目“C:\Users\Administrator\Documents\Visual Studio 2012\Projects\KDRPC\Client\Client.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:01.51
