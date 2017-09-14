@@ -48,12 +48,67 @@ private:
 };
 
 
-class 
+
+struct st_data_flow
 {
-public:
-protected:
-private:
+	int		length_of_this_struct;
+	long	ID_proc;
+	int 	functionID;
+
+	//是否异步
+	char	async;
+	//是否允许回调
+	char	permit_callback;
+	//参数结构体格式扩展配置，当前为空。
+	int		argvTypeOption;	
+
+	/*参数结构体总长度*/
+	int		length_Of_Argv_Struct;
+	/*参数结构体中指针结构体的数量*/
+	int		number_Of_Argv_Pointer;
+
+	char	argv_Struct[0];   
+
+	/*
+	指针结构体 的数量：
+		指的是参数中的指针结构体的数量.
+		eg:
+		struct argv
+		{
+			char* a
+			int len_a;
+			char* b
+			int len_b;
+			char c
+		}	
+		其中指针结构体的数量是2.
+
+	
+
+
+	*/
+
 };
+struct st_argv_Node_Struct
+{
+	int length;
+	char data[0];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

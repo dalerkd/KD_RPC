@@ -64,44 +64,44 @@ struct st_argv
 int Core(int SN,PVOID* pStruct,FARPROC callBack)
 {
 	/*
-		参数复制拷贝 需要参数判定一下指针的数量?还是由格式化函数复制一站到底
+	参数复制拷贝 需要参数判定一下指针的数量?还是由格式化函数复制一站到底
 
-		参数返回拷贝 只在同步哟
+	参数返回拷贝 只在同步哟
 
-		等待方式取决于 异步否
+	等待方式取决于 异步否
 
 
-		同异步不会对合成一个参数造成影响。
+	同异步不会对合成一个参数造成影响。
 
 	*/
-//发送参数方式统一
+	//发送参数方式统一
 	int m_pointerNumber = g_CI->QueryArgvPointerNumber(SN);
 	int m_sizeOfStruct = g_CI->QueryArgvStructSize(SN);
 
 
 	LONG ID_proc = CID_Manager::GetNewID();
 
+	//同异步——不同的返回方式
+	const bool async =g_CI->QueryASync(SN);
+
+
 	//应该不会返回0，它会整合一些别的结构。
-	int realBufferLen = g_CDF.ToFlow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber);
+	int realBufferLen = g_CDF.ToFlow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,async,callBack);
 	if (0==realBufferLen)
 	{
 		throw("Core: ToFlow return 0");
 	}
-	
 	char* flowBuffer = new char[realBufferLen]();
-	
-	
-
-	g_CDF.ToFlow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,_Out_ flowBuffer,realBufferLen);
+	g_CDF.ToFlow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,async,callBack,_Out_ flowBuffer,realBufferLen);
 
 	//发送flowBuffer,realBufferLen
 	/*
 	发送机制我想玩些别的。除了传统的直接调用发送，
-	
+
 	另一种想法是将数据放在发送栈中,而在放入这个操作是互斥的，且检查栈有没有满。
 	“生产者，消费者模型”，这样的
 	好处是：
-	
+
 	1. 网络发送不消耗调用的时间。该返回返回。
 	2. 使“调用”和“网络发送”两个过程相互独立，错误之类的也不会外泄到不相干的层。
 	3. 提高了吞吐速度，发送其实是个抢占过程，而短时间内调用增加，会导致大家都等待。
@@ -110,16 +110,13 @@ int Core(int SN,PVOID* pStruct,FARPROC callBack)
 	1. 多了一次复制手续，这要是内存不够就。。。
 	2. 多了那么些管理步骤，似乎效率有所降低。
 
-	
+
 	*/
 	pCWEB->Send(flowBuffer,realBufferLen);
 
 	delete(flowBuffer);
 	flowBuffer = nullptr;
 
-
-//同异步——不同的返回方式
-	bool async =g_CI->QueryASync(SN);
 
 	if (async)//异步处理
 	{
@@ -130,11 +127,11 @@ int Core(int SN,PVOID* pStruct,FARPROC callBack)
 	{
 		int ret;//返回值
 		int PointerNumber = g_CI->QueryArgvPointerNumber(SN);
-		
+
 		//Event
 		HANDLE hdEvent =CreateEvent(NULL,FALSE,FALSE,NULL);
-		
-		
+
+
 		pssm->push(ID_proc,&ret,pStruct,PointerNumber,hdEvent);
 
 		WaitForSingleObject(hdEvent,INFINITE);
@@ -157,7 +154,7 @@ CFunctionInfo* g_CI = new CFunctionInfo();
 class CFunctionInfo
 {
 public:
-	
+
 	void AddInfo(int SN,char* funcName,bool asyn,int ArgvStringNumber,int sizeOfStruct/*参数结构体大小*/)
 	{
 
@@ -186,15 +183,67 @@ CDataFormat g_CDF;
 class CDataFormat
 {
 public:
-/************************************************************************/
-/* 客户端使用                                                           */
-/************************************************************************/
+
+	struct st_data_flow
+	{
+		int		length_of_this_struct;//整个结构的长度
+		long	ID_proc;
+		int 	functionID;
+
+		//是否异步
+		char	async;
+		//是否允许回调
+		char	permit_callback;
+		//参数结构体格式扩展配置，当前为空。
+		int		argvTypeOption;	
+
+		/*参数结构体总长度*/
+		int		length_Of_Argv_Struct;
+		/*参数结构体中指针结构体的数量*/
+		int		number_Of_Argv_Pointer;
+
+		char	argv_Struct[0];   
+
+		/*
+		指针结构体 的数量：
+		指的是参数中的指针结构体的数量.
+		eg:
+		struct argv
+		{
+		char* a
+		int len_a;
+		char* b
+		int len_b;
+		char c
+		}	
+		其中指针结构体的数量是2.
+
+
+
+
+		*/
+
+	};
+	struct st_argv_Node_Struct
+	{
+		int length;
+		char data[0];
+	};
+
+
+	/************************************************************************/
+	/* 客户端使用                                                           */
+	/************************************************************************/
 	//转换成流：客户端编码
 	/*
 	返回值:			实际需要的buffer长度
+	ID_proc:		每个调用过程的唯一标记
+	SN:				每个函数的唯一标记
 	pStruct:		指向参数结构体的指针
 	sizeOfStruct:	结构体的长度
 	ArgvPointerNumber:结构体中指针的数量,格式为最前排列:{指针,长度}{指针,长度}
+	async:			是否异步
+	callBack:		原调用函数的回调函数
 	flowBuffer:		生成流需要的存储区指针
 	real_len:		生成流准备的存储区长度
 
@@ -202,7 +251,7 @@ public:
 	如果提供错误的长度会得到异常。
 
 	*/
-	int Client_FormatToFlow(LONG ID_proc,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,char* flowBuffer=nullptr,int real_len=0)
+	int Client_FormatToFlow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,bool async,FARPROC callback,char* flowBuffer=nullptr,int real_len=0)
 	{
 		/*返回真正需要的长度给外部
 		如果real_len!=真实长度的话,就不拷贝,而是返回真正的长度.
@@ -214,20 +263,138 @@ public:
 		2. 每次不足就得抛异常或者错误值：不容易接啊，操作繁琐。
 		3. 由其他函数负责获取长度。分离导致容易出现次序错误。
 
+
+		步骤：
+		1. 获取需要的长度，告知调用者
+		2. 校验调用者长度
+		3. 填充流
+
 		*/
+		if (sizeOfStruct<(ArgvPointerNumber*sizeof(int)*2))
+		{
+			throw("Client_FormatToFlow:Error:argv is not true,...");
+		}
+		if (ArgvPointerNumber<0)
+		{
+			throw("Client_FormatToFlow:Error:argv is not true,ArgvPointerNumber<0");
+		}
+
+		if (async==false&&callback!=nullptr)
+		{
+			throw("Client_FormatToFlow: Warming: Sync function can't permit have callback");
+		}
+
+		//为什么这么算？看st_data_flow和st_argv_Node_Struct结构
+		const int NO_POINTER_NUMBER = 1;
+		int m_real_length = sizeof(st_data_flow) + sizeof(int)*(ArgvPointerNumber+NO_POINTER_NUMBER);
+
+		if (nullptr==pStruct)//无参数
+		{
+			if (ArgvPointerNumber!=0||sizeOfStruct!=0)
+			{
+				throw("Client_FormatToFlow:Error:pStruct==nullptr,and ArgvPointerNumber!=0");
+			}
+			else
+			{
+				;
+			}
+		}
+		else
+		{
+			int* ptmp =(int*) pStruct;
+			for (int i=0;i<ArgvPointerNumber;++i)
+			{
+				int* tmp;
+				tmp = ptmp+(i+1)*sizeof(int);
+				m_real_length+=*tmp;
+			}
+		}
+		if (0==real_len)
+		{
+			return m_real_length;
+		}
+		else if (m_real_length!=real_len)
+		{
+			throw("Client_FormatToFlow:RealLength != your input length:Data change?");
+		}
+
+		if (flowBuffer==nullptr)
+		{
+			throw("Client_FormatToFlow:FlowBuffer is nullptr");
+		}
+
+//结构赋值
+		st_data_flow* psdf =(st_data_flow*) flowBuffer;
+
+		psdf->length_Of_Argv_Struct = m_real_length;
+		psdf->ID_proc	= ID_proc;
+		psdf->functionID= SN;
+		psdf->async		= async;
+		psdf->permit_callback = callback?true:false;
+		psdf->argvTypeOption = 0;
+		
+		psdf->number_Of_Argv_Pointer = ArgvPointerNumber;
+		/*
+		int* ptmp =(int*) pStruct;
+		ArgvPointerNumber;
+		for (int i=0;i<ArgvPointerNumber;++i)
+		{
+		int* tmp;
+		tmp = ptmp+(i+1)*sizeof(int);
+		m_real_length+=*tmp;
+		}
+		*/
+		int* pBase =(int*) pStruct;
+		int tmp_length = 0;//Argv_Struct这一部分的总长度
+		
+		int offset = 0;//在argv_Struct[]中的偏移
+
+		for (int i=0;i<ArgvPointerNumber;++i)
+		{
+			int* ptmp_length;
+			int* ptmp_pointer;
+			ptmp_pointer= pBase+i*sizeof(int);
+			ptmp_length	= pBase+(i+1)*sizeof(int);
+
+			//check
+			if (nullptr == (char*)*ptmp_pointer&&0!=*ptmp_length)
+			{
+				throw("Client_FormatToFlow:This argv pointer==nullptr,but length call me !=0");
+			}
+			//copy
+
+			int* plength = (int*)psdf->argv_Struct[offset];
+			*plength = *ptmp_length;
+
+			offset += sizeof(int);
+			memcpy_s((void*)psdf->argv_Struct[offset],*ptmp_length,(char*)*ptmp_pointer,*ptmp_length);
+			
+			offset+=*ptmp_length;
+
+			tmp_length+=*ptmp_length;
+		}
+
+		tmp_length += ArgvPointerNumber*sizeof(int);//+长度信息所占位置
+		tmp_length += sizeOfStruct-ArgvPointerNumber*sizeof(int)*2+sizeof(int);//毕竟非指针参数此时要开始占长度位置，如果一下子不理解看两个结构。
+
+		psdf->length_Of_Argv_Struct = tmp_length;
+
+		return m_real_length;
+
+
 	}
-	
+
 	//流转换成格式:客户端解码：不是一个线程函数,因为它不阻塞：因为栈管理程序管理的是信号们。
 	/*
-		
+
 	*/
 	//void Client_FlowToFormat_Execute(char* flow,int flow_len,_Out_ int& ID_proc,_Out_ char *pStruct ,_Out_ int& structLen,_Out_ int& ArgvPointerNumber,_Out_ bool& async);
 	void Client_FlowToFormat_Execute(char* flow,int flow_len);//由它来自行区分是否异步,并走不同的流程。
 
-/************************************************************************/
-/* 服务端使用															*/
-/************************************************************************/
-	
+	/************************************************************************/
+	/* 服务端使用															*/
+	/************************************************************************/
+
 	//异步格式转换成流:服务端编码
 	void Service_FormatToFlow_Async();
 
@@ -236,7 +403,7 @@ public:
 
 
 
-	
+
 	struct  st_thread_Service_FlowToFormat_Excute
 	{
 		char* flow;
@@ -273,14 +440,14 @@ public:
 /*
 网络层：
 实现以下功能：
-	半异步发送数据。运用生产者-消费者模型，只在栈满的时候阻塞用户。
-	等待全部发送完毕:该接口提供一个通知，当所有数据发送完毕的时候触发，用于程序退出等。
-	
+半异步发送数据。运用生产者-消费者模型，只在栈满的时候阻塞用户。
+等待全部发送完毕:该接口提供一个通知，当所有数据发送完毕的时候触发，用于程序退出等。
+
 有消息时,如果是同步就消灭。。。？
-	有消息来时，如果是更新消息
-							交给CFunctionInfo处理.
-				如果是其他消息
-							push给Stack管理程序：由Stack管理程序来具体解包。
+有消息来时，如果是更新消息
+交给CFunctionInfo处理.
+如果是其他消息
+push给Stack管理程序：由Stack管理程序来具体解包。
 
 */
 CWEB* pCWEB =new CWEB();
@@ -326,12 +493,14 @@ public:
 	/*当前时刻，是否全部发送完毕
 	可被用做退出前确认数据是否发送完毕。
 	注意：无法保证别的线程不来发数据，除非每个线程都做检查哈哈。
+
+	即使这样，也不能保证数据已经被发送，它可能是刚被从栈中取出来了。
 	*/
 	bool AllSendIsFinish()
 	{
 		return m_CSQ->IsEmpty();
 	}
-	
+
 private:
 	/*！！！******产生异常：说明空了 exception::char*
 	用途：弹出一条发送任务
@@ -463,8 +632,8 @@ public:
 	}
 	/*
 	某一时刻队列是否为空.
-		用于在退出前检查自己线程的任务是否发送完毕了。
-		当然不能保证别的线程再往里面塞。
+	用于在退出前检查自己线程的任务是否发送完毕了。
+	当然不能保证别的线程再往里面塞。
 	*/
 	bool IsEmpty()
 	{
@@ -531,8 +700,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 /*
-	负责产生唯一ID。该ID被用在标记任务的唯一性上：
-	一个被标号的数据流从服务器回来还能知道它来自于哪里。
+负责产生唯一ID。该ID被用在标记任务的唯一性上：
+一个被标号的数据流从服务器回来还能知道它来自于哪里。
 */
 class CID_Manager
 {
