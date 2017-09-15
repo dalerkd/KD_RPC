@@ -19,6 +19,7 @@ struct st_data_flow
 	char	async;
 	//是否允许回调
 	char	permit_callback;
+	int		return_value;//返回值,在同步下服务器端有效
 	//参数结构体格式扩展配置，当前为空。
 	int		argvTypeOption;	
 

@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "Client.h"
+#include "debug.h"
 
 
 // 这是导出变量的一个示例
@@ -61,7 +62,7 @@ struct st_argv
 3. 结构体有几个指针(规定指针必须在结构体中靠前
 
 */
-int Core(int SN,PVOID* pStruct,FARPROC callBack)
+int Core(int SN,PVOID pStruct,FARPROC callBack)
 {
 	/*
 	参数复制拷贝 需要参数判定一下指针的数量?还是由格式化函数复制一站到底
@@ -75,14 +76,14 @@ int Core(int SN,PVOID* pStruct,FARPROC callBack)
 
 	*/
 	//发送参数方式统一
-	int m_pointerNumber = g_CI->QueryArgvPointerNumber(SN);
-	int m_sizeOfStruct = g_CI->QueryArgvStructSize(SN);
+	int m_pointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
+	int m_sizeOfStruct = g_CI_Client->QueryArgvStructSize(SN);
 
 
 	LONG ID_proc = CID_Manager::GetNewID();
 
 	//同异步——不同的返回方式
-	const bool async =g_CI->QueryASync(SN);
+	const bool async =g_CI_Client->QueryASync(SN);
 
 
 	//应该不会返回0，它会整合一些别的结构。
@@ -126,7 +127,7 @@ int Core(int SN,PVOID* pStruct,FARPROC callBack)
 	else//同步处理
 	{
 		int ret;//返回值
-		int PointerNumber = g_CI->QueryArgvPointerNumber(SN);
+		int PointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
 
 		//Event
 		HANDLE hdEvent =CreateEvent(NULL,FALSE,FALSE,NULL);
@@ -143,13 +144,13 @@ int Core(int SN,PVOID* pStruct,FARPROC callBack)
 
 }
 //Fake函数
-int aaa1(PVOID* pStruct,FARPROC callBack)
+int aaa1(PVOID pStruct,FARPROC callBack)
 {
 	int m_SN = 1;
-	Core(m_SN,pStruct,callBack);
+	return Core(m_SN,pStruct,callBack);
 }
 
-CFunctionInfo* g_CI = new CFunctionInfo();
+CFunctionInfo* g_CI_Client = new CFunctionInfo();
 
 class CFunctionInfo
 {
@@ -172,8 +173,16 @@ public:
 	{
 
 	}
+	char* QueryFuncName(int query_SN)
+	{
+
+
+	}
 private:
 };
+
+
+CFunctionInfo* g_CI_Service = new CFunctionInfo();
 
 /*
 参数和发送流格式之间的转换
@@ -205,6 +214,7 @@ public:
 		char	async;
 		//是否允许回调
 		char	permit_callback;
+		int		return_value;//返回值,在同步下服务器端有效：这是个不顺眼的设置
 		//参数结构体格式扩展配置，当前为空。仅格式。0:全参数格式;1:快速参数格式,即参数长度为0,表示无改动。
 		int		argvTypeOption;	//e_argv_type_option
 
@@ -334,7 +344,7 @@ public:
 			throw("Client_FormatToFlow:FlowBuffer is nullptr");
 		}
 
-//结构赋值
+		//结构赋值
 		st_data_flow* psdf =(st_data_flow*) flowBuffer;
 
 		psdf->length_Of_Argv_Struct = m_real_length;
@@ -343,8 +353,9 @@ public:
 		psdf->functionID= SN;
 		psdf->async		= async;
 		psdf->permit_callback = callback?true:false;
+		psdf->return_value = 0;
 		psdf->argvTypeOption = STANDARD_FLOW_MODE;
-		
+
 		psdf->number_Of_Argv_Pointer = ArgvPointerNumber;
 		/*
 		int* ptmp =(int*) pStruct;
@@ -358,7 +369,7 @@ public:
 		*/
 		int* pBase =(int*) pStruct;
 		int tmp_length = 0;//Argv_Struct这一部分的总长度
-		
+
 		int offset = 0;//在argv_Struct[]中的偏移
 
 		for (int i=0;i<ArgvPointerNumber;++i)
@@ -375,12 +386,19 @@ public:
 			}
 			//copy
 
-			int* plength = (int*)psdf->argv_Struct[offset];
+			//int* plength = (int*)psdf->argv_Struct[offset];
+
+			int* plength = (int*)(psdf->argv_Struct+offset);
+
 			*plength = *ptmp_length;
 
 			offset += sizeof(int);
-			memcpy_s((void*)psdf->argv_Struct[offset],*ptmp_length,(char*)*ptmp_pointer,*ptmp_length);
-			
+			int stat = memcpy_s(psdf->argv_Struct+offset,*ptmp_length,(char*)*ptmp_pointer,*ptmp_length);
+			if (stat)
+			{
+				throw("memcpy_s return err.");
+			}
+
 			offset+=*ptmp_length;
 
 			tmp_length+=*ptmp_length;
@@ -396,13 +414,16 @@ public:
 
 	}
 
+
 	//流转换成格式:客户端解码：不是一个线程函数,因为它不阻塞：因为栈管理程序管理的是信号们。
 	/*
 
 	*/
 	//void Client_FlowToFormat_Execute(char* flow,int flow_len,_Out_ int& ID_proc,_Out_ char *pStruct ,_Out_ int& structLen,_Out_ int& ArgvPointerNumber,_Out_ bool& async);
-	void Client_FlowToFormat_Execute(char* flow,int flow_len);//由它来自行区分是否异步,并走不同的流程。
+	void Client_FlowToFormat_Execute(char* flow,int flow_len)//由它来自行区分是否异步,并走不同的流程。
+	{
 
+	}
 	/************************************************************************/
 	/* 服务端使用															*/
 	/************************************************************************/
@@ -416,19 +437,399 @@ public:
 
 
 
+#include <iostream>
+
 	struct  st_thread_Service_FlowToFormat_Excute
 	{
 		char* flow;
 		int flow_len;
-		HANDLE 信号;//上面两个参数复制完毕就触发这个信号。
+		HANDLE hdEvent_Copy_Finish;//上面两个参数复制完毕就触发这个信号。
 	};
 
 	//流转换成格式:服务端解码：这是一个线程函数。
 	//void Service_FlowToFormat_Execute(char* flow,int flow_len,_Out_ int& ID_proc,_Out_ char *pStruct ,_Out_ int structLen,_Out_ int& ArgvPointerNumber,_Out_ bool& async);
 	DWORD Service_FlowToFormat_Execute(st_thread_Service_FlowToFormat_Excute* p)
 	{
+		if (nullptr == p)
+		{
+			OutputDebug(L"Service_FlowToFormat_Execute:Input pointer==nullptr");
+			return -1;
+		}
+
+		if (nullptr == p->flow)
+		{
+			OutputDebug(L"Service_FlowToFormat_Execute:Input struct ponter==nullptr");
+			return -2;
+		}
+
+		st_data_flow* pTmp_Flow = (st_data_flow*)p->flow;
+
+		if (pTmp_Flow->length_of_this_struct!=p->flow_len)
+		{
+			OutputDebug(L"Service_FlowToFormat_Execute:Input struct Format Error:flow_LEN!=length_of_this_struct");
+			return -0x10;
+		}
+
+		//copy 指针
+		const st_data_flow* pFlowBase =(st_data_flow*) new char(p->flow_len);
+
+		int stat = memcpy_s((char*)pFlowBase,p->flow_len,p->flow,p->flow_len);
+		if (stat)
+		{
+			throw("memcpy_s return err.");
+		}
+
+		//通知 拷贝完成
+		if(0==SetEvent(p->hdEvent_Copy_Finish))
+		{
+			throw("Event is invalid");
+		}
+		//让指针们无效
+		pTmp_Flow = nullptr;
+		p = nullptr;//p无效了。
+
+		//////////////////////////////////////////////////////////////////////////
+		//参数合法性检测
+
+
+		/*测验以真实长度计算
+		总长度 = 头 + 尾
+		length_of_this_struct = sizeof(st_data_flow) + length_Of_Argv_Struct
+		*/
+		if (pFlowBase->length_of_this_struct - sizeof(st_data_flow)!= pFlowBase->number_Of_Argv_Pointer)
+		{
+			OutputDebug(L"Service_FlowToFormat_Execute:Input struct Format Error:number_Of_Argv_Pointer != length_of_this_struct-sizeof(struct head)");
+			return -0x11;
+		}
+
+
+
+
+		//长度应当是这个数字,检验实际是这个数字吗
+		const int tmp_number_Of_Argv_Pointer = pFlowBase->length_of_this_struct - sizeof(st_data_flow);
+
+		//检验指针结构体的数量
+
+		const bool bAsync = (char)pFlowBase->async;
+		const char* argv_Base = pFlowBase->argv_Struct;
+
+		int offset=0;
+		//获取总长度并校验，如果通过就用新的长度申请内存
+
+		int real_argv_length = 0;//实际计算得到的总长度
+
+		//计算所有指针数据的长度
+		for (int i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
+		{
+			int m_pointer_len = *(int*)(argv_Base+offset);
+			real_argv_length += m_pointer_len;
+
+			offset += m_pointer_len+sizeof(int);
+		}
+		//最后的非指针参数的长度
+		int other_Length = *(int*)(argv_Base+offset);
+
+		//总长度=指针参数长度+加上最后的非指针参数的长度+长度占地
+		real_argv_length +=other_Length;
+		const int SIZEOF_NON_POINTER_LENGTH=1;/*非指针类结构体长度*/
+		real_argv_length +=(pFlowBase->number_Of_Argv_Pointer + SIZEOF_NON_POINTER_LENGTH)*sizeof(int);
+
+
+		if (real_argv_length!=pFlowBase->length_Of_Argv_Struct)
+		{
+			OutputDebug(L"Service_FlowToFormat_Execute:Input struct Format Error:length_Of_Argv_Struct is UnReal");
+			return -0x12;
+		}
+
+		//这个长度被调用者知道哟，只是我们不知道哟，所以我们给个指针就完事。
+		int format_len = pFlowBase->number_Of_Argv_Pointer*2*sizeof(int)+other_Length;
+
+		/*原型：int aaa1(PVOID* pStruct,FARPROC callBack)*/
+
+		//////////////////////////////////////////////////////////////////////////
+		//复制操作
+		//用于参数
+		char* pArgvCall = nullptr;
+		//用于同步参数修改状态对比
+		char* pSecondCopyArgv = nullptr;
+		//只管理申请的参数指针内存指针
+		CSafeQueue<char*>* stack_memory_manage = nullptr;
+
+		if (format_len!=0)
+		{
+			pArgvCall = new char[format_len]();
+			
+			if (false == bAsync)
+			{//同步则构建第二个保留区用于对比服务
+				pSecondCopyArgv = new char[format_len]();
+			}
+
+			/*
+				复制操作
+			*/
+
+			
+			stack_memory_manage = new CSafeQueue<char*>();
+
+			
+
+			//计算所有指针数据的长度
+			{
+				int argv_flow_offset = 0;
+				int argv_format_offset=0;
+				for (int i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
+				{
+					int m_pointer_len = *(int*)(argv_Base+argv_flow_offset);
+					
+						/*
+						要不要new，怎么确保new后的东西能够被安全释放，
+						交给用户安全吗？还是另外保存一份？
+						反正交给用户是很不靠谱的。又不是const指针。
+						*/
+					char* pPointerData = nullptr;
+					char* pSecondPointerData = nullptr;
+
+					if (0!=m_pointer_len)
+					{
+						pPointerData = new char[m_pointer_len]();
+
+						//给用户的数据可能被用户破坏，所以为了保证释放所以用栈备份指针
+						stack_memory_manage->push(pPointerData);
+						
+						char* pointer_data =(char*)(argv_Base+argv_flow_offset);
+
+						int stat=memcpy_s(pPointerData,m_pointer_len,pointer_data,m_pointer_len);
+						if (stat)
+						{
+							throw("memcpy_s pPointerData return err.");
+						}
+
+						//检查是否是同步，是的话：备份指针，以便调用后对比结果。
+						if (nullptr!=pSecondCopyArgv)
+						{
+							pSecondPointerData = new char[m_pointer_len]();
+
+							int stat=memcpy_s(pSecondPointerData,m_pointer_len,pointer_data,m_pointer_len);
+							if (stat)
+							{
+								throw("memcpy_s pSecondPointerData return err.");
+							}
+
+
+						}
+					}
+					char* point = pArgvCall + argv_format_offset;
+					*(int*)point= (int)pPointerData;//数据指针填充
+					point+=sizeof(int);
+					*(int*)point= m_pointer_len;//长度填充
+
+					//检查是否是同步，是的话：备份指针，以便调用后对比结果。
+					if (nullptr!=pSecondCopyArgv)
+					{
+						char* t_point = pSecondCopyArgv + argv_format_offset;
+						*(int*)t_point= (int)pSecondPointerData;//数据指针填充
+						t_point+=sizeof(int);
+						*(int*)t_point= m_pointer_len;//长度填充
+						
+					}
+					argv_format_offset+=sizeof(int)+sizeof(int);//指针+长度
+
+					argv_flow_offset += m_pointer_len+sizeof(int);
+				}//-for-end
+
+
+				//最后的非指针参数的长度
+				int other_Length = *(int*)(argv_Base+argv_flow_offset);
+
+				//copy
+				argv_flow_offset+=sizeof(int);
+				char* p_format_end_data = pArgvCall + argv_format_offset;
+				char* p_flow_end_data = (char*)argv_Base+argv_flow_offset;
+
+				int stat = memcpy_s(p_format_end_data,other_Length,p_flow_end_data,other_Length);
+				if (stat)
+				{
+					throw("memcpy_s p_format_end_data return err.");
+				}
+
+				//如果是同步函数也备份一下。。。
+				char* p_format_end_data_copy = pSecondCopyArgv + argv_flow_offset;
+
+				int stat = memcpy_s(p_format_end_data_copy,other_Length,p_flow_end_data,other_Length);
+				if (stat)
+				{
+					throw("memcpy_s p_format_end_data return err.");
+				}
+
+			}
+
+
+		}
+		else//参数指针们皆为空,直接传入
+		{
+			;
+		}
+		/*
+		0. 查询函数名称，调用函数
+		1. 如果是同步函数检查修改
+		和返回值，并发送数据
+		2. 释放所有指针通过栈
+		*/
+		char* pfunName = g_CI_Service->QueryFuncName(pFlowBase->functionID);
+		
+		if (pfunName==nullptr)
+		{
+			OutputDebug(L"Service_FlowToFormat_Execute:query functionID Do'nt find Name,functionID:%d",pFlowBase->functionID);
+			return -0x21;
+		}
+		
+		const int MAX_funName_Len = 256;
+		
+		char* m_functionName = new char[MAX_funName_Len]();
+		strcpy_s(m_functionName,MAX_funName_Len-1,pfunName);
+
+
+		//这里的代码需要迁移到更高层全局去。
+		char* dllName = "Service.dll";
+		HMODULE hServiceDLL = LoadLibraryA(dllName);
+		if (NULL==hServiceDLL)
+		{
+			OutputDebug(L"Service_FlowToFormat_Execute:Load library fault,DLLName:%s",dllName);
+			return -0x31;
+		}
+
+		//获取服务函数
+		FARPROC CalledFunction = GetProcAddress(hServiceDLL,m_functionName);
+
+
+		typedef void (CDataFormat::*callback_fake)(char*,int);
+		typedef int  (*called_function)(char*,callback_fake);
+
+		called_function Service_Work_Function=(called_function)CalledFunction;
+
+		if (bAsync)//异步
+		{
+			callback_fake callback;
+			if (pFlowBase->permit_callback)
+			{
+				callback = ServiceAsyncCallBack;
+			}
+
+			Service_Work_Function(pArgvCall,callback);//不关心返回值			
+		}
+		else//同步，1.检查返回值，2.检查是否有修改参数。3.转换成流。4.发送
+		{
+			int ret_value = Service_Work_Function(pArgvCall,nullptr);
+
+			/*
+			一旦修改了内容就：我们要组建一个包。
+			一种是全部直接返回。
+			一种是快速方式，做检测。只返回必要的内容。
+
+			*/
+			if (QUICK_FLOW_MODE==pFlowBase->argvTypeOption)
+			{/*
+				借用调用参数的结构，
+				1. 修复其指针,防止指针被用户搞坏
+				2. 对于内容没有被修改的将指针置0(因为有备份指针，可以保证释放。)
+				3. 将调用参数结构提交给Format2Flow。(当然要保证修改一下服务标记
+				4. Send			
+
+
+				*/
+				?
+			}
+			else if (STANDARD_FLOW_MODE==pFlowBase->argvTypeOption)
+			{
+				/*
+				同样借用调用参数的结构
+				1. 用队列结构修复其指针，防止指针被用户搞乱
+				2. 将调用参数结构提交给Format2Flow
+				3. Send
+				*/
+				?
+			}
+			else
+			{
+				OutputDebug(L"Service_FlowToFormat_Execute:Input struct Value Error:argvTypeOption value is unexpected");
+				return -23;
+			}
+
+
+		}
+
+
+		//释放保护指针队列,空队列会异常
+		try{
+			for (;;)
+			{
+				char* p = stack_memory_manage->pop();
+				delete(p);
+			}
+		
+		}
+		catch(char*)
+		{
+			;
+		}
+
+		//释放对比指针结构
+		if (pSecondCopyArgv!=nullptr)
+		{
+			const int tmp_argv_number = pFlowBase->number_Of_Argv_Pointer;
+			
+			int offset = 0;
+			for (int i=0;i<tmp_argv_number;i++)
+			{
+				  char* p = (char*)(*(int*)(pSecondCopyArgv+offset));
+				  delete(p);
+				  offset+=sizeof(int)*2;
+			}
+		}
+
+
+
+		delete(pSecondCopyArgv);
+		delete(pArgvCall);
+		pSecondCopyArgv = nullptr;
+		pArgvCall = nullptr;
+
+
+
+
+
+
+
+		//////////////////////////////////////////////////////////////////////////
+		//同异步处理
+		//在于回调 和 是否检查这些指针发生了改变。用于快速回传。
+		//异步由回调发送数据
+		//同步由本函数做参数检查和返回值检查
+
+
+
 
 	}
+	/*
+	提供给异步服务器方法的回调函数
+
+	用于获取返回的数据
+
+	并在这里发送
+	*/
+	void ServiceAsyncCallBack(char* p,int p_len)
+	{
+		/*
+		1. 获取TID对应的过程ID_proc;
+		2. 转换成flow
+		3. Web::Send
+
+		*/
+	}
+
+	private:
+		
+
 };//首先我得知道同异步情况，它们的返回数据格式是不同的？谁负责其中指针内存的申请和销毁比较合适？
 /*
 上面遇到些许的困境：谁来申请这可能很多的内存？和管理它们的指针？
@@ -495,7 +896,11 @@ public:
 			throw("CWEB::Send:data_len<=0");
 		}
 		char* p = new char[data_len]();
-		memcpy_s(p,data_len,data,data_len);
+		int stat=memcpy_s(p,data_len,data,data_len);
+		if (stat)
+		{
+			throw("memcpy_s return err.");
+		}
 
 		st_asysnc_queue_argv tmpArgv = {p,data_len};
 		m_CSQ->push(tmpArgv);
@@ -604,7 +1009,6 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //线程安全的队列,push队尾插入,pop队首插入
 //异常抛出：在队列已经空的情况下还要pop。
-#include <iostream>
 #include <queue>
 using std::queue;
 template <typename TSafeQueue>
