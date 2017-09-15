@@ -183,10 +183,21 @@ CDataFormat g_CDF;
 class CDataFormat
 {
 public:
+	enum e_work_type
+	{
+		Query_INFO,//请求-客户端发送
+		RECV_INFO,//回复-服务端发送
+	};
+	enum e_argv_type_option
+	{
+		STANDARD_FLOW_MODE,//标准模式
+		QUICK_FLOW_MODE//快速参数模式，即参数长度为0,表示无改动。
 
+	};
 	struct st_data_flow
 	{
 		int		length_of_this_struct;//整个结构的长度
+		int		work_type;//本次工作类型:e_work_type
 		long	ID_proc;
 		int 	functionID;
 
@@ -194,8 +205,8 @@ public:
 		char	async;
 		//是否允许回调
 		char	permit_callback;
-		//参数结构体格式扩展配置，当前为空。
-		int		argvTypeOption;	
+		//参数结构体格式扩展配置，当前为空。仅格式。0:全参数格式;1:快速参数格式,即参数长度为0,表示无改动。
+		int		argvTypeOption;	//e_argv_type_option
 
 		/*参数结构体总长度*/
 		int		length_Of_Argv_Struct;
@@ -327,11 +338,12 @@ public:
 		st_data_flow* psdf =(st_data_flow*) flowBuffer;
 
 		psdf->length_Of_Argv_Struct = m_real_length;
+		psdf->work_type = Query_INFO;
 		psdf->ID_proc	= ID_proc;
 		psdf->functionID= SN;
 		psdf->async		= async;
 		psdf->permit_callback = callback?true:false;
-		psdf->argvTypeOption = 0;
+		psdf->argvTypeOption = STANDARD_FLOW_MODE;
 		
 		psdf->number_Of_Argv_Pointer = ArgvPointerNumber;
 		/*
