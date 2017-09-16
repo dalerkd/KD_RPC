@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Client.h"
 #include "debug.h"
+#include <iostream>
 
 
 // 这是导出变量的一个示例
@@ -87,32 +88,18 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 
 
 	//应该不会返回0，它会整合一些别的结构。
-	int realBufferLen = g_CDF.ToFlow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,async,callBack);
+	int realBufferLen = g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+		CDataFormat::Query_INFO,CDataFormat::QUICK_FLOW_MODE,async,callBack);
 	if (0==realBufferLen)
 	{
 		throw("Core: ToFlow return 0");
 	}
 	char* flowBuffer = new char[realBufferLen]();
-	g_CDF.ToFlow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,async,callBack,_Out_ flowBuffer,realBufferLen);
+	g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+		CDataFormat::Query_INFO,CDataFormat::QUICK_FLOW_MODE,async,callBack,_Out_ flowBuffer,realBufferLen);
 
 	//发送flowBuffer,realBufferLen
-	/*
-	发送机制我想玩些别的。除了传统的直接调用发送，
 
-	另一种想法是将数据放在发送栈中,而在放入这个操作是互斥的，且检查栈有没有满。
-	“生产者，消费者模型”，这样的
-	好处是：
-
-	1. 网络发送不消耗调用的时间。该返回返回。
-	2. 使“调用”和“网络发送”两个过程相互独立，错误之类的也不会外泄到不相干的层。
-	3. 提高了吞吐速度，发送其实是个抢占过程，而短时间内调用增加，会导致大家都等待。
-
-	缺点是：
-	1. 多了一次复制手续，这要是内存不够就。。。
-	2. 多了那么些管理步骤，似乎效率有所降低。
-
-
-	*/
 	pCWEB->Send(flowBuffer,realBufferLen);
 
 	delete(flowBuffer);
@@ -265,14 +252,17 @@ public:
 	ArgvPointerNumber:结构体中指针的数量,格式为最前排列:{指针,长度}{指针,长度}
 	async:			是否异步
 	callBack:		原调用函数的回调函数
+	work_type:		发送请求，还是回复数据？客户端，还是服务端？见：e_work_type
+	argvTypeOption: 参数结构体格式扩展配置:快速模式，还是标准？见：e_argv_type_option
 	flowBuffer:		生成流需要的存储区指针
 	real_len:		生成流准备的存储区长度
+	ret_value:		返回值：看来是为服务返回准备的。可忽略。
 
 	异常:
 	如果提供错误的长度会得到异常。
 
 	*/
-	int Client_FormatToFlow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,bool async,FARPROC callback,char* flowBuffer=nullptr,int real_len=0)
+	int Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,int work_type,int argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,int real_len=0,int ret_value=0)
 	{
 		/*返回真正需要的长度给外部
 		如果real_len!=真实长度的话,就不拷贝,而是返回真正的长度.
@@ -293,16 +283,16 @@ public:
 		*/
 		if (sizeOfStruct<(ArgvPointerNumber*sizeof(int)*2))
 		{
-			throw("Client_FormatToFlow:Error:argv is not true,...");
+			throw("Format2Flow:Error:argv is not true,...");
 		}
 		if (ArgvPointerNumber<0)
 		{
-			throw("Client_FormatToFlow:Error:argv is not true,ArgvPointerNumber<0");
+			throw("Format2Flow:Error:argv is not true,ArgvPointerNumber<0");
 		}
 
 		if (async==false&&callback!=nullptr)
 		{
-			throw("Client_FormatToFlow: Warming: Sync function can't permit have callback");
+			throw("Format2Flow: Warming: Sync function can't permit have callback");
 		}
 
 		//为什么这么算？看st_data_flow和st_argv_Node_Struct结构
@@ -313,7 +303,7 @@ public:
 		{
 			if (ArgvPointerNumber!=0||sizeOfStruct!=0)
 			{
-				throw("Client_FormatToFlow:Error:pStruct==nullptr,and ArgvPointerNumber!=0");
+				throw("Format2Flow:Error:pStruct==nullptr,and ArgvPointerNumber!=0");
 			}
 			else
 			{
@@ -336,37 +326,28 @@ public:
 		}
 		else if (m_real_length!=real_len)
 		{
-			throw("Client_FormatToFlow:RealLength != your input length:Data change?");
+			throw("Format2Flow:RealLength != your input length:Data change?");
 		}
 
 		if (flowBuffer==nullptr)
 		{
-			throw("Client_FormatToFlow:FlowBuffer is nullptr");
+			throw("Format2Flow:FlowBuffer is nullptr");
 		}
 
 		//结构赋值
 		st_data_flow* psdf =(st_data_flow*) flowBuffer;
 
 		psdf->length_Of_Argv_Struct = m_real_length;
-		psdf->work_type = Query_INFO;
+		psdf->work_type = work_type;
 		psdf->ID_proc	= ID_proc;
 		psdf->functionID= SN;
 		psdf->async		= async;
 		psdf->permit_callback = callback?true:false;
-		psdf->return_value = 0;
-		psdf->argvTypeOption = STANDARD_FLOW_MODE;
+		psdf->return_value = ret_value;
+		psdf->argvTypeOption = argvTypeOption;
 
 		psdf->number_Of_Argv_Pointer = ArgvPointerNumber;
-		/*
-		int* ptmp =(int*) pStruct;
-		ArgvPointerNumber;
-		for (int i=0;i<ArgvPointerNumber;++i)
-		{
-		int* tmp;
-		tmp = ptmp+(i+1)*sizeof(int);
-		m_real_length+=*tmp;
-		}
-		*/
+
 		int* pBase =(int*) pStruct;
 		int tmp_length = 0;//Argv_Struct这一部分的总长度
 
@@ -382,12 +363,9 @@ public:
 			//check
 			if (nullptr == (char*)*ptmp_pointer&&0!=*ptmp_length)
 			{
-				throw("Client_FormatToFlow:This argv pointer==nullptr,but length call me !=0");
+				throw("Format2Flow:This argv pointer==nullptr,but length call me !=0");
 			}
 			//copy
-
-			//int* plength = (int*)psdf->argv_Struct[offset];
-
 			int* plength = (int*)(psdf->argv_Struct+offset);
 
 			*plength = *ptmp_length;
@@ -427,17 +405,6 @@ public:
 	/************************************************************************/
 	/* 服务端使用															*/
 	/************************************************************************/
-
-	//异步格式转换成流:服务端编码
-	void Service_FormatToFlow_Async();
-
-	//同步格式转换成流:服务端编码
-	void Service_FormatToFlow_Sync();
-
-
-
-
-#include <iostream>
 
 	struct  st_thread_Service_FlowToFormat_Excute
 	{
@@ -542,7 +509,7 @@ public:
 		}
 
 		//这个长度被调用者知道哟，只是我们不知道哟，所以我们给个指针就完事。
-		int format_len = pFlowBase->number_Of_Argv_Pointer*2*sizeof(int)+other_Length;
+		const int format_len = pFlowBase->number_Of_Argv_Pointer*2*sizeof(int)+other_Length;
 
 		/*原型：int aaa1(PVOID* pStruct,FARPROC callBack)*/
 
@@ -553,7 +520,7 @@ public:
 		//用于同步参数修改状态对比
 		char* pSecondCopyArgv = nullptr;
 		//只管理申请的参数指针内存指针
-		CSafeQueue<char*>* stack_memory_manage = nullptr;
+		CSafeQueue<char*>* queue_memory_manage = nullptr;
 
 		if (format_len!=0)
 		{
@@ -569,7 +536,7 @@ public:
 			*/
 
 			
-			stack_memory_manage = new CSafeQueue<char*>();
+			queue_memory_manage = new CSafeQueue<char*>();
 
 			
 
@@ -594,7 +561,7 @@ public:
 						pPointerData = new char[m_pointer_len]();
 
 						//给用户的数据可能被用户破坏，所以为了保证释放所以用栈备份指针
-						stack_memory_manage->push(pPointerData);
+						queue_memory_manage->push(pPointerData);
 						
 						char* pointer_data =(char*)(argv_Base+argv_flow_offset);
 
@@ -719,41 +686,166 @@ public:
 		}
 		else//同步，1.检查返回值，2.检查是否有修改参数。3.转换成流。4.发送
 		{
-			int ret_value = Service_Work_Function(pArgvCall,nullptr);
+			const int ret_value = Service_Work_Function(pArgvCall,nullptr);
 
 			/*
-			一旦修改了内容就：我们要组建一个包。
-			一种是全部直接返回。
-			一种是快速方式，做检测。只返回必要的内容。
+			用备份做操作体
+			
+			快速模式
+			1. 做对比:queue和备份
+			2. 发送备份
+			标准模式
+			1. 直接发送备份
+
+
 
 			*/
 			if (QUICK_FLOW_MODE==pFlowBase->argvTypeOption)
 			{/*
 				借用调用参数的结构，
-				1. 修复其指针,防止指针被用户搞坏
-				2. 对于内容没有被修改的将指针置0(因为有备份指针，可以保证释放。)
-				3. 将调用参数结构提交给Format2Flow。(当然要保证修改一下服务标记
-				4. Send			
-
-
+				1. 检测修改，
+				2. 一旦没修改，则释放指针和置0.	
 				*/
-				?
+
+				//抛异常，不正常，数量问题
+				//指针为空,长度为0,备用指针也为空。否则一则为空是错误。
+
+				if ((pFlowBase->number_Of_Argv_Pointer!=0)&&(pSecondCopyArgv==nullptr))
+				{
+					OutputDebug(L"Service_FlowToFormat_Execute:Error:Unexpected logic.");
+					throw("Service_FlowToFormat_Execute:Error:Unexpected logic.");
+				}
+
+
+				//中转使用仅此而已
+				CSafeQueue<char*>* tmp_queue = new CSafeQueue<char*>();
+
+				for (int offset = 0,int i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
+				{
+					char* p_new_data = nullptr;
+					try
+					{ 
+						p_new_data = queue_memory_manage->pop();
+						tmp_queue->push(p_new_data);
+
+					;}
+					catch(...)
+					{
+						OutputDebug(L"Service_FlowToFormat_Execute:Error:Unexpected:\
+									 queue_memory_manage's number is Incorrect is 0x%x,\
+									 true number is:0x%x",i,pFlowBase->number_Of_Argv_Pointer);
+						throw("Service_FlowToFormat_Execute:Error:Unexpected:\
+								queue_memory_manage's number is Incorrect");
+
+					}
+					char* p_old_data = (char*)(*(int*)(pSecondCopyArgv+offset));
+					offset+=sizeof(int);
+					int	data_len	 = *(int*)(pSecondCopyArgv+offset);
+					
+
+					if (!((p_new_data!=nullptr&&p_old_data!=nullptr&&data_len!=0)||(p_new_data==nullptr&&p_old_data==nullptr&&data_len==0)))
+					{
+						OutputDebug(L"Service_FlowToFormat_Execute:Error:Unexpected value,\
+							p_new_data:0x%x;p_old_data:0x%x;data_len:0x%x.",p_new_data,p_old_data,data_len);
+						throw("Service_FlowToFormat_Execute:Error:Unexpected value.");
+					}
+
+					if (nullptr!=p_old_data)
+					{
+						int ret = memcmp(p_old_data,p_new_data,data_len);
+						if (0==ret)//无改动
+						{
+							delete(p_old_data);
+							(*(int*)(pSecondCopyArgv+offset)) = 0;//指针
+						}
+					}
+
+
+					offset+=sizeof(int);
+				}
+				
+				//复原上面对保护队列的修改使用,为了未来可能的使用。
+				for (int i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
+				{
+					try{queue_memory_manage->push(tmp_queue->pop());}
+					catch(...)
+					{
+						OutputDebug(L"Service_FlowToFormat_Execute:Error:Unexpected2:\
+									 queue_memory_manage's number is Incorrect is 0x%x,\
+									 true number is:0x%x",i,pFlowBase->number_Of_Argv_Pointer);
+						throw("Service_FlowToFormat_Execute:Error:Unexpected:\
+							  queue_memory_manage's number is Incorrect.2");
+					}
+
+				}
+
+				delete(tmp_queue);
+				tmp_queue = nullptr;
+
+
+				
 			}
 			else if (STANDARD_FLOW_MODE==pFlowBase->argvTypeOption)
 			{
 				/*
 				同样借用调用参数的结构
-				1. 用队列结构修复其指针，防止指针被用户搞乱
-				2. 将调用参数结构提交给Format2Flow
-				3. Send
 				*/
-				?
+				;
 			}
 			else
 			{
 				OutputDebug(L"Service_FlowToFormat_Execute:Input struct Value Error:argvTypeOption value is unexpected");
 				return -23;
 			}
+			/*
+			1. 去掉没有不需要回传的参数  提交给Format2Flow
+			2. Send
+			*/
+			{
+				int ID_proc = pFlowBase->ID_proc;
+				int SN		= pFlowBase->functionID;
+				
+				//没有指针数据的情况
+				char* pStruct=nullptr;
+				if (0==pFlowBase->number_Of_Argv_Pointer)
+				{
+					pStruct = nullptr;
+				}
+				else
+				{
+					pStruct = pSecondCopyArgv;
+				}
+				//大小调整到纯指针状态
+				int m_sizeOfStruct  = 2*sizeof(int)*pFlowBase->number_Of_Argv_Pointer;//=format_len;
+
+				int m_pointerNumber = pFlowBase->number_Of_Argv_Pointer;
+				int work_type = CDataFormat::RECV_INFO;
+				int argvTypeOption = pFlowBase->argvTypeOption;
+				int async = false;//同步
+				FARPROC callBack = nullptr;
+				int ret2client_value = ret_value;
+				
+
+				//Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,int work_type,int argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,int real_len=0)
+				int realBufferLen = g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+					work_type,argvTypeOption,async,callBack);
+				if (0==realBufferLen)
+				{
+					throw("Core: ToFlow return 0");
+				}
+				char* flowBuffer = new char[realBufferLen]();
+				g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+					work_type,argvTypeOption,async,callBack,_Out_ flowBuffer,
+					realBufferLen,ret2client_value);
+
+				//发送flowBuffer,realBufferLen
+
+				pCWEB->Send(flowBuffer,realBufferLen);
+
+				delete(flowBuffer);
+				flowBuffer = nullptr;
+			}
+
 
 
 		}
@@ -763,7 +855,7 @@ public:
 		try{
 			for (;;)
 			{
-				char* p = stack_memory_manage->pop();
+				char* p = queue_memory_manage->pop();
 				delete(p);
 			}
 		
@@ -820,11 +912,70 @@ public:
 	void ServiceAsyncCallBack(char* p,int p_len)
 	{
 		/*
-		1. 获取TID对应的过程ID_proc;
+		1. 获取TID对应的过程ID_proc,function_ID;使用栈方式
+		在启动线程前启动线程者，做这个操作:
+
+		struct T()
+		{
+			ID_proc;
+			function_ID
+		}
+		stack<T>.push(threadID);
+		
+		这里进行find操作.问题是现在没有创建进程的家伙。这个家伙应该是WEB的Recive函数。
+		所以下一步就是写这个Recive函数。
+
+
 		2. 转换成flow
 		3. Web::Send
 
 		*/
+		char* pStruct = new char[2*sizeof(int)]();//struct {char* ,int len}
+
+		
+		{
+			int ID_proc = ?->ID_proc;
+			int SN		= ?->functionID;
+
+
+
+			//没有指针数据的情况
+			
+			//大小调整到纯指针状态
+			int number_Of_Argv_Pointer = 1;
+			int m_sizeOfStruct  = 2*sizeof(int)*number_Of_Argv_Pointer;//=format_len;
+
+			int m_pointerNumber = number_Of_Argv_Pointer;
+			int work_type = CDataFormat::RECV_INFO;
+			int argvTypeOption = CDataFormat::STANDARD_FLOW_MODE;
+			int async = true;//同步
+			FARPROC callBack = nullptr;
+			int ret2client_value = -1;//无效
+
+
+			//Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,int work_type,int argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,int real_len=0)
+			int realBufferLen = g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+				work_type,argvTypeOption,async,callBack);
+			if (0==realBufferLen)
+			{
+				throw("Core: ToFlow return 0");
+			}
+			char* flowBuffer = new char[realBufferLen]();
+			g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+				work_type,argvTypeOption,async,callBack,_Out_ flowBuffer,
+				realBufferLen,ret2client_value);
+
+			//发送flowBuffer,realBufferLen
+
+			pCWEB->Send(flowBuffer,realBufferLen);
+
+			delete(flowBuffer);
+			flowBuffer = nullptr;
+		}
+
+
+
+
 	}
 
 	private:
@@ -862,7 +1013,27 @@ public:
 如果是其他消息
 push给Stack管理程序：由Stack管理程序来具体解包。
 
+
 */
+
+	/*
+	发送机制我想玩些别的。除了传统的直接调用发送，
+
+	另一种想法是将数据放在发送栈中,而在放入这个操作是互斥的，且检查栈有没有满。
+	“生产者，消费者模型”，这样的
+	好处是：
+
+	1. 网络发送不消耗调用的时间。该返回返回。
+	2. 使“调用”和“网络发送”两个过程相互独立，错误之类的也不会外泄到不相干的层。
+	3. 提高了吞吐速度，发送其实是个抢占过程，而短时间内调用增加，会导致大家都等待。
+
+	缺点是：
+	1. 多了一次复制手续，这要是内存不够就。。。
+	2. 多了那么些管理步骤，似乎效率有所降低。
+
+
+	*/
+
 CWEB* pCWEB =new CWEB();
 class CWEB
 {
