@@ -1110,7 +1110,7 @@ class CAsyncStateManage
 public:
 	CAsyncStateManage()
 	{
-		m_safemap = new CSafeMap<FARPROC>;
+		m_safemap = new CSafeMap<LONG,FARPROC>();
 	}
 	~CAsyncStateManage()
 	{
@@ -1128,7 +1128,7 @@ public:
 		p = m_safemap->pop(ID_proc);
 	}
 private:
-	CSafeMap<FARPROC>* m_safemap;
+	CSafeMap<LONG,FARPROC>* m_safemap;
 };
 
 
@@ -1140,7 +1140,7 @@ class CSyncStateManage
 public:
 	CSyncStateManage()
 	{
-		m_safemap = new CSafeMap<st_CYSM>();
+		m_safemap = new CSafeMap<LONG,st_CYSM>();
 	}
 	~CSyncStateManage()
 	{
@@ -1174,7 +1174,7 @@ public:
 		return;
 	}
 private:
-	CSafeMap<st_CYSM>* m_safemap;
+	CSafeMap<LONG,st_CYSM>* m_safemap;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -1230,18 +1230,33 @@ public:
 		LeaveCriticalSection(&g_csSafeThread);
 		return ret;
 	}
-private:
+protected:
 	queue<TSafeQueue> m_queue;
 	CRITICAL_SECTION g_csSafeThread;
 };
-
+//只适合new出来的指针，不能指针数组和指针对象做参数。
+class CSafeQueueAutoPointerManage:public CSafeQueue<char*>
+{
+public:
+	~CSafeQueueAutoPointerManage()
+	{
+		for (;;)
+		{
+			if(IsEmpty())
+			{
+				break;
+			}
+			delete (pop());
+		}
+	}
+};
 
 //////////////////////////////////////////////////////////////////////////
 //处理map<ID_proc,struct>
 //异常抛出：在意外情况，此时应当调试。
 #include <map>
 using std::map;
-template <typename TSafeMapData>
+template <typename TSafeMapIndex,typename TSafeMapData>
 //安全map
 class CSafeMap
 {
@@ -1281,7 +1296,7 @@ public:
 	}
 
 private:
-	map<LONG,TSafeMapData> m_map;
+	map<TSafeMapIndex,TSafeMapData> m_map;
 	CRITICAL_SECTION g_csSafeThread;
 };
 
