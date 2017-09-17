@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{f8197b84-3370-4a13-b5a3-5c380633cee9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -27,8 +30,26 @@
     <ClInclude Include="Client.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="debug.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="..\public\DataFormat.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\debug.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FunctionInfo.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\SafeMap.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\SafeQueue.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\StateManage.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\WEB.h">
+      <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -41,8 +62,26 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="debug.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\public\DataFormat.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\debug.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\FunctionInfo.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\SafeMap.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\SafeQueue.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\StateManage.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\WEB.cpp">
+      <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
