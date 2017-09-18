@@ -147,28 +147,41 @@ extern CSafeMap<DWORD,st_Async_Thread_Callback>* g_Async_Thread_Callback;
 
 
 /*
-//用于Format参数结构的存放,需要释放该指针
-char* pArgvCall = nullptr;
 
-//用于同步参数修改状态对比-只用在服务端的同步对比时。需要手工释放其内部的指针。X
-char* pSecondCopyArgv = nullptr;
+_In_:
+char*	pFlow				待解析流指针
+int		Flow_len			待解析流长度
 
-//只管理Format申请的参数指针内存指针
-CSafeQueue<char*>* queue_memory_manage = nullptr;
+_Out_:
+char*	pArgvCall			用于Format参数结构的存放Buffer,调用者申请。
+CSafeQueueAutoPointerManage* queue_memory_manage 只管理Format申请的参数指针内存指针
+int		Real_Format_len		需要的Buffer的长度,如果不知道就写0.将会返回正确的长度值写入即可。这里只作为校验长度用。
+-----------------------
+以下仅用于服务器端：
+char*	pSecondCopyArgv		用于同步参数修改状态对比-只用在服务端的同步对比时。调用者申请。长度和上面的一样。
+CSafeQueueAutoPointerManage* queue_memory_copy 只管理Format备份内存指针,
 
+Exception:
+	类型	介绍			建议
+	----------------------------
+	char*	|内部逻辑问题|	挂起
+	int		|数据格式问题|	非调试状态可以忽略
+
+
+return 占用的数据长度
 */
 
 
-int CDataFormat::Flow2Format(char *pFlow,int Flow_len,_Out_ char*& pFormat,_Out_ int&m_Format_len,
-							  _Out_ CSafeQueueAutoPointerManage*& queue_memory_manage,
-							  _Out_ char*& pSecondCopyArgv
+int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
+							 char* pArgvCall,int Real_Format_len, CSafeQueueAutoPointerManage* queue_memory_manage,
+							 char* pSecondCopyArgv,CSafeQueueAutoPointerManage* queue_memory_copy
 							  )
 {
 
 	if (nullptr==pFlow||Flow_len<sizeof(st_data_flow))
 	{
 		OutputDebug(L"FlowToFormat:Argv look like is false");
-		return -0x10;
+		throw(0x10);
 	}
 	const st_data_flow* pFlowBase = (st_data_flow*)pFlow;
 
@@ -184,7 +197,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,_Out_ char*& pFormat,_Out_
 	if (pFlowBase->length_of_this_struct - sizeof(st_data_flow)!= pFlowBase->number_Of_Argv_Pointer)
 	{
 		OutputDebug(L"FlowToFormat:Input struct Format Error:number_Of_Argv_Pointer != length_of_this_struct-sizeof(struct head)");
-		return -0x11;
+		throw(0x11);
 	}
 
 
@@ -223,32 +236,50 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,_Out_ char*& pFormat,_Out_
 	if (real_argv_length!=pFlowBase->length_Of_Argv_Struct)
 	{
 		OutputDebug(L"FlowToFormat:Input struct Format Error:length_Of_Argv_Struct is UnReal");
-		return -0x12;
+		throw(0x12);
 	}
 
 	//这个长度被调用者知道哟，只是我们不知道哟，所以我们给个指针就完事。
 	const int format_len = pFlowBase->number_Of_Argv_Pointer*2*sizeof(int)+other_Length;
+	
+	if(0==Real_Format_len)
+	{
+		return format_len;
+	}
+	else if (format_len != Real_Format_len || pArgvCall==nullptr)
+	{
+		OutputDebug(L"input the len of format is fault.check it.You input:0x%x,calc length is:0x%x",
+			Real_Format_len,format_len);
+		throw("input the len of format is fault.");
+	}	
+
+
+
 
 	/*原型：int aaa1(PVOID* pStruct,FARPROC callBack)*/
 
 	//////////////////////////////////////////////////////////////////////////
 	//复制操作
 	//用于参数
-	char* pArgvCall = nullptr;
+	//char* pArgvCall = nullptr;外部提供
 
 	//用于同步参数修改状态对比-只用在服务端的同步对比时
-	char* pSecondCopyArgv = nullptr;
+	//char* pSecondCopyArgv = nullptr;外部提供
 	
 	//只管理申请的参数指针内存指针
-	CSafeQueueAutoPointerManage* queue_memory_manage = nullptr;
+	//CSafeQueueAutoPointerManage* queue_memory_manage = nullptr;由外部提供
+
+	//只管理备份内存指针
+	//CSafeQueueAutoPointerManage* queue_memory_copy = nullptr;由外部提供
 
 	if (format_len!=0)
 	{
-		pArgvCall = new char[format_len]();
+		//pArgvCall = new char[format_len]();外部提供
 
-		if (false == bAsync&& RECV_INFO==pFlowBase->work_type)
+		if (nullptr!=pSecondCopyArgv /*false == bAsync&& RECV_INFO==pFlowBase->work_type*/)
 		{//同步则构建第二个保留区用于对比服务
-			pSecondCopyArgv = new char[format_len]();
+			//pSecondCopyArgv = new char[format_len]();外部提供
+			//queue_memory_copy = new CSafeQueueAutoPointerManage();外部提供
 		}
 
 		/*
@@ -256,8 +287,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,_Out_ char*& pFormat,_Out_
 		*/
 
 
-		queue_memory_manage = new CSafeQueue<char*>();
-
+		//queue_memory_manage = new CSafeQueueAutoPointerManage();外部提供
 
 
 		//计算所有指针数据的长度
@@ -274,6 +304,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,_Out_ char*& pFormat,_Out_
 				反正交给用户是很不靠谱的。又不是const指针。
 				*/
 				char* pPointerData = nullptr;
+				//备份后的指针
 				char* pSecondPointerData = nullptr;
 
 				if (0!=m_pointer_len)
@@ -281,8 +312,12 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,_Out_ char*& pFormat,_Out_
 					pPointerData = new char[m_pointer_len]();
 
 					//给用户的数据可能被用户破坏，所以为了保证释放所以用栈备份指针
-					queue_memory_manage->push(pPointerData);
-
+					if (queue_memory_manage)
+					{
+						queue_memory_manage->push(pPointerData);
+					}
+					
+					//用户数据在flow中的指针
 					char* pointer_data =(char*)(argv_Base+argv_flow_offset);
 
 					int stat=memcpy_s(pPointerData,m_pointer_len,pointer_data,m_pointer_len);
@@ -292,9 +327,13 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,_Out_ char*& pFormat,_Out_
 					}
 
 					//检查是否是同步，是的话：备份指针，以便调用后对比结果。
-					if (/*nullptr!=pSecondCopyArgv */false == bAsync&& RECV_INFO==pFlowBase->work_type)
+					if (nullptr!=pSecondCopyArgv /*false == bAsync&& RECV_INFO==pFlowBase->work_type*/)
 					{
 						pSecondPointerData = new char[m_pointer_len]();
+						if (queue_memory_copy)
+						{
+							queue_memory_copy->push(pSecondPointerData);
+						}
 
 						int stat=memcpy_s(pSecondPointerData,m_pointer_len,pointer_data,m_pointer_len);
 						if (stat)
@@ -304,14 +343,33 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,_Out_ char*& pFormat,_Out_
 
 
 					}
+				}//if(0!=m_pointer_len)else
+				else
+				{
+					if (queue_memory_manage)
+					{
+						queue_memory_manage->push(nullptr);//空指针也要入啊，不然影响次序
+					}
+					
+					if (nullptr!=pSecondCopyArgv/*false == bAsync&& RECV_INFO==pFlowBase->work_type*/)
+					{
+						if (queue_memory_copy)
+						{
+							queue_memory_copy->push(nullptr);
+						}
+					}
 				}
+				/*
+				
+				填充Format结构
+				*/
 				char* point = pArgvCall + argv_format_offset;
 				*(int*)point= (int)pPointerData;//数据指针填充
 				point+=sizeof(int);
 				*(int*)point= m_pointer_len;//长度填充
 
 				//检查是否是同步，是的话：备份指针，以便调用后对比结果。
-				if (/*nullptr!=pSecondCopyArgv*/false == bAsync&& RECV_INFO==pFlowBase->work_type)
+				if (nullptr!=pSecondCopyArgv/*false == bAsync&& RECV_INFO==pFlowBase->work_type*/)
 				{
 					char* t_point = pSecondCopyArgv + argv_format_offset;
 					*(int*)t_point= (int)pSecondPointerData;//数据指针填充
@@ -342,7 +400,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,_Out_ char*& pFormat,_Out_
 			
 			
 			//如果是同步函数，后面的非指针参数也要备份一下。
-			if (false == bAsync&& RECV_INFO==pFlowBase->work_type)
+			if (nullptr!=pSecondCopyArgv/*false == bAsync&& RECV_INFO==pFlowBase->work_type*/)
 			{
 				char* p_format_end_data_copy = pSecondCopyArgv + argv_flow_offset;
 
