@@ -87,7 +87,45 @@ class CClientWeb:public CWEB
 public:
 	void Recive_Data(char* flow,int flow_len)
 	{
-		
+		/*Flow2Format*/
+		if (nullptr==flow||0==flow_len)
+		{
+			return;
+		}
+		static CDataFormat::st_data_flow* pFlowBase = (CDataFormat::st_data_flow*)flow;
+
+		char* pArgvCall  = nullptr;
+		CSafeQueueAutoPointerManage* queue_memory_manage = nullptr;
+
+		try
+		{
+			int real_len=CDataFormat::Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,nullptr,0,nullptr,nullptr,nullptr);
+			if (real_len==0)
+			{
+				OutputDebug(L"real_len=0?");
+				throw("real_len=0?");
+			}
+
+			pArgvCall = new char[real_len]();
+			queue_memory_manage = new CSafeQueueAutoPointerManage();
+	
+
+			CDataFormat::Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,pArgvCall,real_len,queue_memory_manage,nullptr,nullptr);
+
+
+			?????
+
+		}
+		catch (char* string)
+		{
+			throw(string);//内部结构错误
+		}
+		catch (int errCode)//文件格式错误忽略之
+		{
+			OutputDebug(L"Flow Format Err,code:0x%x",errCode);
+			return;
+		}
+		//////////////////////////////////////////////////////////////////////////
 	}
 };
 #include <process.h>

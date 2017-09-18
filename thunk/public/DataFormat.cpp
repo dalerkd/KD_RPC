@@ -419,7 +419,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 	{
 		;
 	}
-	return 0;
+	return real_argv_length;
 }
 
 unsigned int WINAPI CDataFormat::Service_FlowToFormat_Execute(LPVOID lp)
@@ -465,7 +465,47 @@ unsigned int WINAPI CDataFormat::Service_FlowToFormat_Execute(LPVOID lp)
 	pTmp_Flow = nullptr;
 	p = nullptr;//p无效了。
 
-????????????
+
+	/*Flow2Format*/
+
+	char* pArgvCall  = nullptr;
+	char* pSecondCopyArgv = nullptr;
+	CSafeQueueAutoPointerManage* queue_memory_manage = nullptr;
+	CSafeQueueAutoPointerManage* queue_memory_copy	 = nullptr;
+	const bool bAsync = pFlowBase->async;
+	try
+	{
+		int real_len=Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,nullptr,0,nullptr,nullptr,nullptr);
+		if (real_len==0)
+		{
+			OutputDebug(L"real_len=0?");
+			throw("real_len=0?");
+		}
+
+		pArgvCall = new char[real_len]();
+		queue_memory_manage = new CSafeQueueAutoPointerManage();
+		if (false == bAsync&& RECV_INFO==pFlowBase->work_type)
+		{
+			pSecondCopyArgv = new char[real_len]();
+			queue_memory_copy = new CSafeQueueAutoPointerManage();
+		}
+
+		Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,pArgvCall,real_len,queue_memory_manage,pSecondCopyArgv,queue_memory_copy);
+
+
+	}
+	catch (char* string)
+	{
+		throw(string);//内部结构错误
+	}
+	catch (int errCode)//文件格式错误忽略之
+	{
+		OutputDebug(L"Flow Format Err,code:0x%x",errCode);
+		return errCode;
+	}
+//////////////////////////////////////////////////////////////////////////
+
+
 	/*
 	0. 查询函数名称，调用函数
 	1. 如果是同步函数检查修改
@@ -692,39 +732,34 @@ unsigned int WINAPI CDataFormat::Service_FlowToFormat_Execute(LPVOID lp)
 	}
 
 
-	//释放保护指针队列,空队列会异常
-	try{
-		for (;;)
-		{
-			char* p = queue_memory_manage->pop();
-			delete(p);
-		}
 
-	}
-	catch(char*)
-	{
-		;
-	}
 
-	//释放对比指针结构
-	if (pSecondCopyArgv!=nullptr)
-	{
-		const int tmp_argv_number = pFlowBase->number_Of_Argv_Pointer;
 
-		int offset = 0;
-		for (int i=0;i<tmp_argv_number;i++)
-		{
-			char* p = (char*)(*(int*)(pSecondCopyArgv+offset));
-			delete(p);
-			offset+=sizeof(int)*2;
-		}
-	}
+	//释放对比指针结构 - 废弃代码 已经自动实现释放了
+	//if (pSecondCopyArgv!=nullptr)
+	//{
+	//	const int tmp_argv_number = pFlowBase->number_Of_Argv_Pointer;
 
+	//	int offset = 0;
+	//	for (int i=0;i<tmp_argv_number;i++)
+	//	{
+	//		char* p = (char*)(*(int*)(pSecondCopyArgv+offset));
+	//		delete(p);
+	//		offset+=sizeof(int)*2;
+	//	}
+	//}
+
+
+	//释放保护指针队列们-曾用于保存 指针结构 和 对比指针结构
+	delete(queue_memory_manage);
+	queue_memory_manage = nullptr;
+	delete(queue_memory_copy);
+	queue_memory_copy = nullptr;
 
 
 	delete(pSecondCopyArgv);
-	delete(pArgvCall);
 	pSecondCopyArgv = nullptr;
+	delete(pArgvCall);
 	pArgvCall = nullptr;
 
 
