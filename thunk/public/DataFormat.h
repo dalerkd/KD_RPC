@@ -100,7 +100,7 @@ public:
 
 	*/
 	//void Client_FlowToFormat_Execute(char* flow,int flow_len,_Out_ int& ID_proc,_Out_ char *pStruct ,_Out_ int& structLen,_Out_ int& ArgvPointerNumber,_Out_ bool& async);
-	static void Client_FlowToFormat_Execute(char* flow,int flow_len);//由它来自行区分是否异步,并走不同的流程。	
+	static unsigned int WINAPI  Client_FlowToFormat_Execute(LPVOID lp);//由它来自行区分是否异步,并走不同的流程。	
 	static int Flow2Format(char *pFlow,int Flow_len, char* pArgvCall,int Real_Format_len, CSafeQueueAutoPointerManage* queue_memory_manage, char* pSecondCopyArgv,CSafeQueueAutoPointerManage* queue_memory_copy );
 	/************************************************************************/
 	/* 服务端使用															*/

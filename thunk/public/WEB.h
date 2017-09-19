@@ -82,53 +82,14 @@ private:
 	CSafeQueue<st_asysnc_queue_argv>* m_CSQ;//发送数据栈
 };
 
+
+
 class CClientWeb:public CWEB
 {
 public:
-	void Recive_Data(char* flow,int flow_len)
-	{
-		/*Flow2Format*/
-		if (nullptr==flow||0==flow_len)
-		{
-			return;
-		}
-		static CDataFormat::st_data_flow* pFlowBase = (CDataFormat::st_data_flow*)flow;
-
-		char* pArgvCall  = nullptr;
-		CSafeQueueAutoPointerManage* queue_memory_manage = nullptr;
-
-		try
-		{
-			int real_len=CDataFormat::Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,nullptr,0,nullptr,nullptr,nullptr);
-			if (real_len==0)
-			{
-				OutputDebug(L"real_len=0?");
-				throw("real_len=0?");
-			}
-
-			pArgvCall = new char[real_len]();
-			queue_memory_manage = new CSafeQueueAutoPointerManage();
-	
-
-			CDataFormat::Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,pArgvCall,real_len,queue_memory_manage,nullptr,nullptr);
-
-
-			?????
-
-		}
-		catch (char* string)
-		{
-			throw(string);//内部结构错误
-		}
-		catch (int errCode)//文件格式错误忽略之
-		{
-			OutputDebug(L"Flow Format Err,code:0x%x",errCode);
-			return;
-		}
-		//////////////////////////////////////////////////////////////////////////
-	}
+	void Recive_Data(char* flow,int flow_len);
 };
-#include <process.h>
+
 class CServiceWeb:public CWEB
 {
 	/*
@@ -139,20 +100,5 @@ class CServiceWeb:public CWEB
 	谁来释放？
 	
 	*/
-	void Recive_Data(char* flow,int flow_len)
-	{
-
-
-		//Event的作用：将参数复制到内部后，需要通知本函数。另外参数传入需要需要拷贝过程。
-		HANDLE  hdEvent=(NULL,TRUE,FALSE,NULL);
-
-		CDataFormat::st_thread_Service_FlowToFormat_Excute
-			tmp={flow,flow_len,hdEvent};
-
-		_beginthreadex(NULL,0,CDataFormat::Service_FlowToFormat_Execute,(void*)&tmp,0,NULL);	
-
-		WaitForSingleObject(hdEvent,INFINITE);
-		CloseHandle(hdEvent);
-		hdEvent = NULL;
-	}
+	void Recive_Data(char* flow,int flow_len);
 };

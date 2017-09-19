@@ -60,10 +60,10 @@ struct st_argv
 CFunctionInfo* g_CI_Client = new CFunctionInfo();
 CDataFormat g_CDF;
 //客户端 异步状态管理
-CAsyncStateManage* pasm = new CAsyncStateManage();
+CAsyncStateManage* g_pasm = new CAsyncStateManage();
 //客户端 同步状态管理
-CSyncStateManage* pssm = new CSyncStateManage();
-CWEB* pCWEB =new CServiceWeb();
+CSyncStateManage* g_pssm = new CSyncStateManage();
+CWEB* pCWEB =new CClientWeb();
 
 
 /*
@@ -102,7 +102,7 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 	const bool async =g_CI_Client->QueryASync(SN);
 
 
-	//应该不会返回0，它会整合一些别的结构。
+	//不会返回0，它会整合一些别的结构。
 	int realBufferLen = g_CDF.Format2Flow(ID_proc,SN,(char*)pStruct,m_sizeOfStruct,m_pointerNumber,
 		CDataFormat::Query_INFO,CDataFormat::QUICK_FLOW_MODE,async,callBack);
 	if (0==realBufferLen)
@@ -125,7 +125,7 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 	{
 		if (nullptr!=callBack)
 		{
-			pasm->push(ID_proc,callBack);
+			g_pasm->push(ID_proc,callBack);
 		}
 		else
 		{
@@ -143,7 +143,7 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 		HANDLE hdEvent =CreateEvent(NULL,FALSE,FALSE,NULL);
 
 
-		pssm->push(ID_proc,&ret,(char*)pStruct,PointerNumber,hdEvent);
+		g_pssm->push(ID_proc,&ret,(char*)pStruct,PointerNumber,hdEvent);
 
 		WaitForSingleObject(hdEvent,INFINITE);
 		CloseHandle(hdEvent);

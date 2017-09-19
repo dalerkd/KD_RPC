@@ -4,6 +4,9 @@
 // 任何其他项目上不应定义此符号。这样，源文件中包含此文件的任何其他项目都会将
 // CLIENT_API 函数视为是从 DLL 导入的，而此 DLL 则将用此宏定义的
 // 符号视为是被导出的。
+
+#pragma once
+
 #ifdef CLIENT_EXPORTS
 #define CLIENT_API __declspec(dllexport)
 #else
@@ -24,3 +27,5 @@ CLIENT_API int fnClient(void);
 
 
 extern"C" __declspec(dllexport)int aaaa(PVOID* p,FARPROC callBack);
+
+
