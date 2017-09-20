@@ -29,3 +29,20 @@ CLIENT_API int fnClient(void);
 extern"C" __declspec(dllexport)int aaaa(PVOID* p,FARPROC callBack);
 
 
+
+//////////////////////////////////////////////////////////////////////////
+/*
+负责产生唯一ID。该ID被用在标记任务的唯一性上：
+一个被标号的数据流从服务器回来还能知道它来自于哪里。
+*/
+class CID_Manager
+{
+public:
+	static LONG GetNewID()
+	{
+		return InterlockedIncrement(&CID_Manager::m_ID);
+	}
+private:
+	static LONG m_ID;
+};
+LONG CID_Manager::m_ID =0;

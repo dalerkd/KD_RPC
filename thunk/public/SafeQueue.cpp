@@ -1,4 +1,6 @@
-#include "../Client/stdafx.h"
+#include "stdafx.h"
+
+//#include "../Client/stdafx.h"
 #include "SafeQueue.h"
 
 

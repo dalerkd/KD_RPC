@@ -95,8 +95,8 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 	int m_pointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
 	int m_sizeOfStruct = g_CI_Client->QueryArgvStructSize(SN);
 
-
-	LONG ID_proc = CID_Manager::GetNewID();
+	CID_Manager ID_Manager;
+	LONG ID_proc = ID_Manager.GetNewID();
 
 	//同异步——不同的返回方式
 	const bool async =g_CI_Client->QueryASync(SN);
@@ -165,21 +165,5 @@ int aaa1(PVOID pStruct,FARPROC callBack)
 
 
 
-//////////////////////////////////////////////////////////////////////////
-/*
-负责产生唯一ID。该ID被用在标记任务的唯一性上：
-一个被标号的数据流从服务器回来还能知道它来自于哪里。
-*/
-class CID_Manager
-{
-public:
-	static LONG GetNewID()
-	{
-		return InterlockedIncrement(&CID_Manager::m_ID);
-	}
-private:
-	static LONG m_ID;
-};
-LONG CID_Manager::m_ID =0;
 
 

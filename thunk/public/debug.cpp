@@ -1,4 +1,6 @@
 ///////debug.cpp
+#include "stdafx.h"
+
 #include "../Client/stdafx.h"
 
 #include <tchar.h>

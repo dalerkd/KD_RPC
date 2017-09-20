@@ -1,5 +1,9 @@
 #pragma once
 
+#pragma warning (disable: 4200) 
+
+#include "SafeQueue.h"
+
 
 /*
 参数和发送流格式之间的转换

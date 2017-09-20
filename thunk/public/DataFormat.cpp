@@ -1,4 +1,5 @@
-#include "../Client/stdafx.h"
+#include "stdafx.h"
+//#include "../Client/stdafx.h"
 #include "DataFormat.h"
 #include "debug.h"
 #include "SafeQueue.h"
@@ -6,6 +7,14 @@
 #include "SafeMap.h"
 #include "FunctionInfo.h"
 #include "StateManage.h"
+
+struct st_Async_Thread_Callback 
+{
+	LONG ID_proc;
+	int function_ID;
+};
+
+
 
 extern CDataFormat g_CDF;
 extern CWEB* pCWEB;
@@ -35,7 +44,7 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 	3. Ìî³äÁ÷
 
 	*/
-	if (sizeOfStruct<(ArgvPointerNumber*sizeof(int)*2))
+	if (sizeOfStruct<(int)(ArgvPointerNumber*sizeof(int)*2))
 	{
 		throw("Format2Flow:Error:argv is not true,...");
 	}
@@ -148,6 +157,8 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 typedef void (*callback_real)(char*,int); 
 unsigned int WINAPI  CDataFormat::Client_FlowToFormat_Execute(LPVOID lp) //ÓÉËüÀ´×ÔĞĞÇø·ÖÊÇ·ñÒì²½,²¢×ß²»Í¬µÄÁ÷³Ì¡£
 {
+	int ret_value = 0;//Ò²¾ÍÊÇ´íÎóÂëÓ´
+
 	st_thread_Service_FlowToFormat_Excute* p=(st_thread_Service_FlowToFormat_Excute*) lp;
 
 	if (nullptr == p)
@@ -216,7 +227,7 @@ unsigned int WINAPI  CDataFormat::Client_FlowToFormat_Execute(LPVOID lp) //ÓÉËüÀ
 	catch (int errCode)//ÎÄ¼ş¸ñÊ½´íÎóºöÂÔÖ®
 	{
 		OutputDebug(L"Flow Format Err,code:0x%x",errCode);
-		return;
+		return errCode;
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -278,7 +289,7 @@ unsigned int WINAPI  CDataFormat::Client_FlowToFormat_Execute(LPVOID lp) //ÓÉËüÀ
 				goto Recive_Data_Client_End;
 			}
 			//Format ½«½á¹ûÉÏÈ¥
-			for (int i=0,int offset=0;i<PointerNumber;++i,offset+=sizeof(int)*2)
+			for (int i=0,offset=0;i<PointerNumber;++i,offset+=sizeof(int)*2)
 			{
 				
 				char* pOldData = (char*)*(int*)(pFormat+offset);
@@ -358,7 +369,7 @@ unsigned int WINAPI  CDataFormat::Client_FlowToFormat_Execute(LPVOID lp) //ÓÉËüÀ
 
 
 
-
+	ret_value = 1;
 
 Recive_Data_Client_End:
 
@@ -368,13 +379,10 @@ Recive_Data_Client_End:
 	delete(queue_memory_manage);
 	queue_memory_manage = nullptr;
 
+	ret_value-=1;
 
+	return ret_value;
 }
-struct st_Async_Thread_Callback 
-{
-	LONG ID_proc;
-	int function_ID;
-};
 
 
 
@@ -747,18 +755,18 @@ unsigned int WINAPI CDataFormat::Service_FlowToFormat_Execute(LPVOID lp)
 	ºÍ·µ»ØÖµ£¬²¢·¢ËÍÊı¾İ
 	2. ÊÍ·ÅËùÓĞÖ¸ÕëÍ¨¹ıÕ»
 	*/
-	char* pfunName = g_CI_Service->QueryFuncName(pFlowBase->functionID);
+	int funName_Len = 0;
+	funName_Len = g_CI_Service->QueryFuncName(pFlowBase->functionID);
+	char* pFunctionName = new char[funName_Len]();
+	g_CI_Service->QueryFuncName(pFlowBase->functionID,pFunctionName);
 
-	if (pfunName==nullptr)
+
+	if (pFunctionName==nullptr)
 	{
 		OutputDebug(L"Service_FlowToFormat_Execute:query functionID Do'nt find Name,functionID:%d",pFlowBase->functionID);
 		return -0x21;
 	}
-
-	const int MAX_funName_Len = 256;
-
-	char* m_functionName = new char[MAX_funName_Len]();
-	strcpy_s(m_functionName,MAX_funName_Len-1,pfunName);
+	
 
 
 	//ÕâÀïµÄ´úÂëĞèÒªÇ¨ÒÆµ½¸ü¸ß²ãÈ«¾ÖÈ¥¡£
@@ -771,14 +779,20 @@ unsigned int WINAPI CDataFormat::Service_FlowToFormat_Execute(LPVOID lp)
 	}
 
 	//»ñÈ¡·şÎñº¯Êı
-	FARPROC CalledFunction = GetProcAddress(hServiceDLL,m_functionName);
-
+	FARPROC CalledFunction = GetProcAddress(hServiceDLL,pFunctionName);
+	
 	if (nullptr == CalledFunction)
 	{
-		OutputDebug(L"Service_FlowToFormat_Execute:GetProcAddress fault,DLLName:%s,functionName:%s",dllName,m_functionName);
+		OutputDebug(L"Service_FlowToFormat_Execute:GetProcAddress fault,DLLName:%s,functionName:%s",dllName,pFunctionName);
+		delete(pFunctionName);
+		pFunctionName = nullptr;
 		return -0x41;
 	}
+	delete(pFunctionName);
+	pFunctionName = nullptr;
 	
+
+
 	typedef void (*callback_fake)(char*,int);
 	typedef int  (*called_function)(char*,callback_fake);
 
@@ -788,7 +802,7 @@ unsigned int WINAPI CDataFormat::Service_FlowToFormat_Execute(LPVOID lp)
 	{
 		
 		//ÅäÖÃcallback;
-		callback_fake callback;
+		callback_fake callback=nullptr;
 		if (pFlowBase->permit_callback)
 		{
 			callback = ServiceAsyncCallBack;
@@ -836,7 +850,7 @@ unsigned int WINAPI CDataFormat::Service_FlowToFormat_Execute(LPVOID lp)
 			//ÖĞ×ªÊ¹ÓÃ½ö´Ë¶øÒÑ
 			CSafeQueue<char*>* tmp_queue = new CSafeQueue<char*>();
 
-			for (int offset = 0,int i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
+			for (int offset = 0,i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
 			{
 				char* p_new_data = nullptr;
 				try
@@ -1002,7 +1016,7 @@ unsigned int WINAPI CDataFormat::Service_FlowToFormat_Execute(LPVOID lp)
 
 
 
-
+	return 0;
 	//////////////////////////////////////////////////////////////////////////
 	//Í¬Òì²½´¦Àí
 	//ÔÚÓÚ»Øµ÷ ºÍ ÊÇ·ñ¼ì²éÕâĞ©Ö¸Õë·¢ÉúÁË¸Ä±ä¡£ÓÃÓÚ¿ìËÙ»Ø´«¡£

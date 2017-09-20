@@ -1,4 +1,5 @@
-#include "../Client/stdafx.h"
+#include "stdafx.h"
+//#include "../Client/stdafx.h"
 #include "SafeMap.h"
 
 
@@ -10,21 +11,21 @@ CSafeMap<TSafeMapIndex,TSafeMapData>::CSafeMap(void)
 
 
 template <typename TSafeMapIndex,typename TSafeMapData>
-CSafeMap<template<TSafeMapIndex,TSafeMapData>>::~CSafeMap(void)
+CSafeMap<TSafeMapIndex,TSafeMapData>::~CSafeMap(void)
 {
 	DeleteCriticalSection(&g_csSafeThread);
 }
 
 template <typename TSafeMapIndex,typename TSafeMapData>
-void CSafeMap<template<TSafeMapIndex,TSafeMapData>
-::push(LONG id,TSafeMapData data)
+void CSafeMap<TSafeMapIndex,TSafeMapData>
+::push(TSafeMapIndex id,TSafeMapData data)
 {
 	EnterCriticalSection(&g_csSafeThread);
 	m_map[id]=data;
 }
 
 template <typename TSafeMapIndex,typename TSafeMapData>
-TSafeMapData CSafeMap<template<TSafeMapIndex,TSafeMapData> 
+TSafeMapData CSafeMap<TSafeMapIndex,TSafeMapData> 
 ::pop(TSafeMapIndex id)
 {
 	EnterCriticalSection(&g_csSafeThread);

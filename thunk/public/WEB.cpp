@@ -1,4 +1,5 @@
-#include "../Client/stdafx.h"
+#include "stdafx.h"
+//#include "../Client/stdafx.h"
 #include "WEB.h"
 #include "../public/debug.h"
 #include "../public/StateManage.h"
