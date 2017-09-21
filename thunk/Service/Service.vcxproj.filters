@@ -24,12 +24,24 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Data_Format_Service.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WEB_Service.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Service.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Data_Format_Service.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WEB_Service.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,6 +5,7 @@
 //////////////////////////////////////////////////////////////////////////
 //线程安全的队列,push队尾插入,pop队首插入
 //异常抛出：在队列已经空的情况下还要pop。
+#include <windows.h>
 #include <iostream>
 #include <queue>
 using std::queue;
@@ -30,11 +31,16 @@ private:
 	CRITICAL_SECTION g_csSafeThread;
 };
 //只适合new出来的指针，不能指针数组和指针对象做参数。
-class CSafeQueueAutoPointerManage:public CSafeQueue<char*>
-{
-public:
-	~CSafeQueueAutoPointerManage();
-};
+//class CSafeQueueAutoPointerManage:public CSafeQueue<char*>
+//{
+//public:
+//	~CSafeQueueAutoPointerManage();
+//};
+
+
+
+//#include "../Client/stdafx.h"
+
 
 
 
@@ -84,14 +90,14 @@ bool CSafeQueue<TSafeQueue>::IsEmpty()
 	return ret;
 }
 
-CSafeQueueAutoPointerManage::~CSafeQueueAutoPointerManage(void)
-{
-	for (;;)
-	{
-		if(IsEmpty())
-		{
-			break;
-		}
-		delete (pop());
-	}
-}
+//CSafeQueueAutoPointerManage::~CSafeQueueAutoPointerManage()
+//{
+//	for (;;)
+//	{
+//		if(IsEmpty())
+//		{
+//			break;
+//		}
+//		delete (pop());
+//	}
+//}

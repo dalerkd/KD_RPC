@@ -82,23 +82,3 @@ private:
 	CSafeQueue<st_asysnc_queue_argv>* m_CSQ;//发送数据栈
 };
 
-
-
-class CClientWeb:public CWEB
-{
-public:
-	void Recive_Data(char* flow,int flow_len);
-};
-
-class CServiceWeb:public CWEB
-{
-	/*
-	启动线程
-	将线程ID加入某个XX Stack 里
-	谁来加？thread_id ID_proc,function_ID
-	是否本函数来解析？
-	谁来释放？
-	
-	*/
-	void Recive_Data(char* flow,int flow_len);
-};

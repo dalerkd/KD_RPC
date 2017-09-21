@@ -47,33 +47,3 @@ CWEB::st_asysnc_queue_argv CWEB::findAndPop()
 {
 	return m_CSQ->pop();
 }
-
-void CClientWeb::Recive_Data(char* flow,int flow_len)
-{
-	//Event的作用：将参数复制到内部后，需要通知本函数。另外参数传入需要需要拷贝过程。
-	HANDLE  hdEvent=(NULL,TRUE,FALSE,NULL);
-
-	CDataFormat::st_thread_Service_FlowToFormat_Excute
-		tmp={flow,flow_len,hdEvent};
-
-	_beginthreadex(NULL,0,CDataFormat::Client_FlowToFormat_Execute,(void*)&tmp,0,NULL);	
-
-	WaitForSingleObject(hdEvent,INFINITE);
-	CloseHandle(hdEvent);
-	hdEvent = NULL;
-}
-
-void CServiceWeb::Recive_Data(char* flow,int flow_len)
-{
-	//Event的作用：将参数复制到内部后，需要通知本函数。另外参数传入需要需要拷贝过程。
-	HANDLE  hdEvent=(NULL,TRUE,FALSE,NULL);
-
-	CDataFormat::st_thread_Service_FlowToFormat_Excute
-		tmp={flow,flow_len,hdEvent};
-
-	_beginthreadex(NULL,0,CDataFormat::Service_FlowToFormat_Execute,(void*)&tmp,0,NULL);	
-
-	WaitForSingleObject(hdEvent,INFINITE);
-	CloseHandle(hdEvent);
-	hdEvent = NULL;
-}

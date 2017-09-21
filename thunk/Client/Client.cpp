@@ -7,6 +7,7 @@
 
 
 #include "../public/WEB.h"
+#include "WEB_Client.h"
 #include "../public/FunctionInfo.h"
 #include "../public/DataFormat.h"
 #include "../public/StateManage.h"
@@ -63,7 +64,7 @@ CDataFormat g_CDF;
 CAsyncStateManage* g_pasm = new CAsyncStateManage();
 //客户端 同步状态管理
 CSyncStateManage* g_pssm = new CSyncStateManage();
-CWEB* pCWEB =new CClientWeb();
+CWEB* pCWEB =new CWEB_Client();
 
 
 /*

@@ -117,17 +117,7 @@ public:
 		HANDLE hdEvent_Copy_Finish;//上面两个参数复制完毕就触发这个信号。
 	};
 
-	//流转换成格式:服务端解码：这是一个线程函数。
-	//参数：st_thread_Service_FlowToFormat_Excute* p
-	static  unsigned int WINAPI Service_FlowToFormat_Execute(LPVOID p);
-	/*
-	提供给异步服务器方法的回调函数
 
-	用于获取返回的数据
-
-	并在这里发送
-	*/
-	static void ServiceAsyncCallBack(char* p,int p_len);
 
 	private:
 		

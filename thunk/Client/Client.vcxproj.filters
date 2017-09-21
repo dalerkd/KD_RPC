@@ -51,6 +51,12 @@
     <ClInclude Include="..\public\WEB.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="WEB_Client.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Data_Format_Client.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -82,6 +88,12 @@
     </ClCompile>
     <ClCompile Include="..\public\WEB.cpp">
       <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="WEB_Client.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Data_Format_Client.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
