@@ -47,6 +47,7 @@ void CSafeMap<TSafeMapIndex,TSafeMapData>
 {
 	EnterCriticalSection(&g_csSafeThread);
 	m_map[id]=data;
+	LeaveCriticalSection(&g_csSafeThread);
 }
 
 template <typename TSafeMapIndex,typename TSafeMapData>
