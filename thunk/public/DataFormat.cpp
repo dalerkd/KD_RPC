@@ -89,7 +89,7 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 	//½á¹¹¸³Öµ
 	st_data_flow* psdf =(st_data_flow*) flowBuffer;
 
-	psdf->length_Of_Argv_Struct = m_real_length;
+	psdf->length_of_this_struct = m_real_length;
 	psdf->work_type = work_type;
 	psdf->ID_proc	= ID_proc;
 	psdf->functionID= SN;
@@ -98,6 +98,7 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 	psdf->return_value = ret_value;
 	psdf->argvTypeOption = argvTypeOption;
 
+	psdf->length_Of_Argv_Struct = m_real_length-sizeof(st_data_flow);
 	psdf->number_Of_Argv_Pointer = ArgvPointerNumber;
 
 	int* pBase =(int*) pStruct;
