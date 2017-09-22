@@ -138,7 +138,7 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//CSafeQueueAutoPointerManage* p =new CSafeQueueAutoPointerManage();
+	CSafeQueueAutoPointerManage* p =new CSafeQueueAutoPointerManage();
 
 	/*CSafeQueue<char*>* p = new CSafeQueue<char*>();
 
@@ -146,7 +146,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	char* a = new char[256]();
 	p->push(a);
 	delete(p);*/
-	CSafeQueue<int>* x = new CSafeQueue<int>();
+	delete(p);
 
 	//bool b = 1;
 	//printf("%s",b?"Hi":"Will");

@@ -33,7 +33,17 @@ private:
 class CSafeQueueAutoPointerManage:public CSafeQueue<char*>
 {
 public:
-	~CSafeQueueAutoPointerManage();
+	~CSafeQueueAutoPointerManage()
+	{
+		for (;;)
+		{
+			if(IsEmpty())
+			{
+				break;
+			}
+			delete (pop());
+		}
+	}
 };
 
 
@@ -84,14 +94,4 @@ bool CSafeQueue<TSafeQueue>::IsEmpty()
 	return ret;
 }
 
-CSafeQueueAutoPointerManage::~CSafeQueueAutoPointerManage(void)
-{
-	for (;;)
-	{
-		if(IsEmpty())
-		{
-			break;
-		}
-		delete (pop());
-	}
-}
+
