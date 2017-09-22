@@ -27,7 +27,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 {
 	int ret_value = 0;//“≤æÕ «¥ÌŒÛ¬Î”¥
 
-	st_thread_Service_FlowToFormat_Excute* p=(st_thread_Service_FlowToFormat_Excute*) lp;
+	st_thread_FlowToFormat_Excute_argvs* p=(st_thread_FlowToFormat_Excute_argvs*) lp;
 
 	if (nullptr == p)
 	{

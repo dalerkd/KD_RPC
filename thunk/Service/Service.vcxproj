@@ -79,12 +79,27 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\public\DataFormat.h" />
+    <ClInclude Include="..\public\debug.h" />
+    <ClInclude Include="..\public\FunctionInfo.h" />
+    <ClInclude Include="..\public\SafeMap.h" />
+    <ClInclude Include="..\public\SafeQueue.h" />
+    <ClInclude Include="..\public\StateManage.h" />
+    <ClInclude Include="..\public\WEB.h" />
     <ClInclude Include="Data_Format_Service.h" />
+    <ClInclude Include="Service.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WEB_Service.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\public\DataFormat.cpp" />
+    <ClCompile Include="..\public\debug.cpp" />
+    <ClCompile Include="..\public\FunctionInfo.cpp" />
+    <ClCompile Include="..\public\SafeMap.cpp" />
+    <ClCompile Include="..\public\SafeQueue.cpp" />
+    <ClCompile Include="..\public\StateManage.cpp" />
+    <ClCompile Include="..\public\WEB.cpp" />
     <ClCompile Include="Data_Format_Service.cpp" />
     <ClCompile Include="Service.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -110,7 +110,7 @@ public:
 	/* 服务端使用															*/
 	/************************************************************************/
 
-	struct  st_thread_Service_FlowToFormat_Excute
+	struct  st_thread_FlowToFormat_Excute_argvs
 	{
 		char* flow;
 		int flow_len;

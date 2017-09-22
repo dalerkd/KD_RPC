@@ -4,6 +4,7 @@
 #include "../public/debug.h"
 #include "../public/WEB.h"
 
+
 struct st_Async_Thread_Callback 
 {
 	LONG ID_proc;
@@ -31,7 +32,7 @@ CData_Format_Service::~CData_Format_Service(void)
 unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp)
 {
 
-	st_thread_Service_FlowToFormat_Excute* p=(st_thread_Service_FlowToFormat_Excute*) lp;
+	st_thread_FlowToFormat_Excute_argvs* p=(st_thread_FlowToFormat_Excute_argvs*) lp;
 
 	if (nullptr == p)
 	{
