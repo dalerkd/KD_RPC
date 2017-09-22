@@ -93,69 +93,83 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 
 	*/
 	//发送参数方式统一
-	int m_pointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
-	int m_sizeOfStruct = g_CI_Client->QueryArgvStructSize(SN);
-
-	CID_Manager ID_Manager;
-	LONG ID_proc = ID_Manager.GetNewID();
-
-	//同异步——不同的返回方式
-	const bool async =g_CI_Client->QueryASync(SN);
-
-
-	//不会返回0，它会整合一些别的结构。
-	int realBufferLen = g_CDF.Format2Flow(ID_proc,SN,(char*)pStruct,m_sizeOfStruct,m_pointerNumber,
-		CDataFormat::Query_INFO,CDataFormat::QUICK_FLOW_MODE,async,callBack);
-	if (0==realBufferLen)
+	try
 	{
-		throw("Core: ToFlow return 0");
-	}
-	char* flowBuffer = new char[realBufferLen]();
-	g_CDF.Format2Flow(ID_proc,SN,(char*)pStruct,m_sizeOfStruct,m_pointerNumber,
-		CDataFormat::Query_INFO,CDataFormat::QUICK_FLOW_MODE,async,callBack,_Out_ flowBuffer,realBufferLen);
-
-	//发送flowBuffer,realBufferLen
-
-	pCWEB->Send(flowBuffer,realBufferLen);
-
-	delete(flowBuffer);
-	flowBuffer = nullptr;
+		int m_pointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
+		int m_sizeOfStruct = g_CI_Client->QueryArgvStructSize(SN);
 
 
-	if (async)//异步处理
-	{
-		if (nullptr!=callBack)
+		CID_Manager ID_Manager;
+		LONG ID_proc = ID_Manager.GetNewID();
+
+		//同异步——不同的返回方式
+		const bool async =g_CI_Client->QueryASync(SN);
+
+
+		//不会返回0，它会整合一些别的结构。
+		int realBufferLen = g_CDF.Format2Flow(ID_proc,SN,(char*)pStruct,m_sizeOfStruct,m_pointerNumber,
+			CDataFormat::Query_INFO,CDataFormat::QUICK_FLOW_MODE,async,callBack);
+		if (0==realBufferLen)
 		{
-			g_pasm->push(ID_proc,callBack);
+			throw("Core: ToFlow return 0");
 		}
-		else
+		char* flowBuffer = new char[realBufferLen]();
+		g_CDF.Format2Flow(ID_proc,SN,(char*)pStruct,m_sizeOfStruct,m_pointerNumber,
+			CDataFormat::Query_INFO,CDataFormat::QUICK_FLOW_MODE,async,callBack,_Out_ flowBuffer,realBufferLen);
+
+		//发送flowBuffer,realBufferLen
+
+		pCWEB->Send(flowBuffer,realBufferLen);
+
+		delete(flowBuffer);
+		flowBuffer = nullptr;
+
+
+		if (async)//异步处理
 		{
-			;//空回调是不会返回的
+			if (nullptr!=callBack)
+			{
+				g_pasm->push(ID_proc,callBack);
+			}
+			else
+			{
+				;//空回调是不会返回的
+			}
+			return true;
+
 		}
-		return true;
-		
+		else//同步处理
+		{
+			int ret;//返回值
+			int PointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
+
+			//Event
+			HANDLE hdEvent =CreateEvent(NULL,FALSE,FALSE,NULL);
+
+
+			g_pssm->push(ID_proc,&ret,(char*)pStruct,PointerNumber,hdEvent);
+
+			WaitForSingleObject(hdEvent,INFINITE);
+			CloseHandle(hdEvent);
+			return ret;
+		}
 	}
-	else//同步处理
+	catch(char* s)
 	{
-		int ret;//返回值
-		int PointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
-
-		//Event
-		HANDLE hdEvent =CreateEvent(NULL,FALSE,FALSE,NULL);
-
-
-		g_pssm->push(ID_proc,&ret,(char*)pStruct,PointerNumber,hdEvent);
-
-		WaitForSingleObject(hdEvent,INFINITE);
-		CloseHandle(hdEvent);
-		return ret;
+		OutputDebug(L"Error:%s",s);
+		throw("");
+	}
+	catch(...)
+	{
+		OutputDebug(L"Error:Happen some error.");
+		throw("");
 	}
 
 
 
 }
 //Fake函数
-int aaa1(PVOID pStruct,FARPROC callBack)
+extern"C" __declspec(dllexport)int Add(PVOID pStruct,FARPROC callBack)
 {
 	int m_SN = 1;
 	return Core(m_SN,pStruct,callBack);

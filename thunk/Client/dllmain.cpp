@@ -4,6 +4,12 @@
 #include "../public/FunctionInfo.h"
 
 
+struct st_argv_Add
+{
+	int firstNumber;
+	int secondNumber;
+};
+
 extern CFunctionInfo* g_CI_Client;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -19,10 +25,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 			³õÊ¼»¯functionInfo
 			g_CI_Client->AddInfo();
 			*/
-			char*strName = "Add";
-			
 
-			g_CI_Client->AddInfo(0,,);
+			const int funcNumber = 1;
+			const int ArgvPointerNumber = 0;
+
+			g_CI_Client->AddInfo(funcNumber,"Add",false,ArgvPointerNumber,sizeof(st_argv_Add));
 			
 
 

@@ -23,12 +23,12 @@
 序号是不是自动生成的?可以，也可以手动
 
 序号：方便传输，和字符串一一对应。否则就得用char*函数名和len来表示了.
-	我觉得这种字符串不在网络上传输，就是函数调用和函数名的一种分离，是好的。
+我觉得这种字符串不在网络上传输，就是函数调用和函数名的一种分离，是好的。
 
 能否动态生成自由参数的调用呢？eg：
 int MessageBoxA(HANDLE,char*,char*,int);
-	答案是不可以：因为字符串多长我不知道。所以还是需要修改参数。
-	所以不如让其参数全部统一到我们的新格式来。
+答案是不可以：因为字符串多长我不知道。所以还是需要修改参数。
+所以不如让其参数全部统一到我们的新格式来。
 
 */
 
@@ -59,13 +59,20 @@ struct st_argv_Add
 	int firstNumber;
 	int secondNumber;
 };
+//int Add(PVOID pStruct,FARPROC callBack)
+
+
+
 
 
 typedef void (_cdecl* RPC_CallBack)(const char*,int len);//RPC回调原形
 
 typedef  int (__cdecl *int_FUN_ADD)(int,int);
 typedef  int (__cdecl *int_FUN_REAL)(st_argv_MessageBoxA* p,RPC_CallBack callBack);
-typedef  int (__cdecl *int_FUN_Standard)(st_argv_QueryWeather* ,RPC_CallBack callBack);//标准
+
+typedef  int (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
+
+//typedef  int (__cdecl *int_FUN_Standard)(st_argv_QueryWeather* ,RPC_CallBack callBack);//标准
 
 
 
@@ -74,38 +81,77 @@ void WeatherCallBack(const char*,int len);
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	bool Yuan = false;
 
-	HMODULE  test = LoadLibraryA("ServiceDLL.dll");
-
-	FARPROC fpAdd = GetProcAddress(test,"Add");		//导入算术测试
-	FARPROC fpReal = GetProcAddress(test,"Real");	//导入MessageBoxA测试
-	FARPROC fpQueryWeather = GetProcAddress(test,"QueryWeather");//导入回调测试
-
-	int_FUN_ADD funAdd =(int_FUN_ADD)fpAdd;
-	int_FUN_REAL funReal =(int_FUN_REAL)fpReal;
-	int_FUN_Standard funQueryWeather =(int_FUN_Standard)fpQueryWeather;
+	if (Yuan)
+	{
 
 
+		HMODULE  test = LoadLibraryA("ServiceDLL.dll");
 
-	int AddResult  = funAdd(5,6);
+		FARPROC fpAdd = GetProcAddress(test,"Add");		//导入算术测试
+		FARPROC fpReal = GetProcAddress(test,"Real");	//导入MessageBoxA测试
+		FARPROC fpQueryWeather = GetProcAddress(test,"QueryWeather");//导入回调测试
 
-
-	st_argv_MessageBoxA tmp_Message;
-	tmp_Message.hWnd = NULL;
-	tmp_Message.lpText = "Hi";
-	tmp_Message.lpCaption = "title";
-	tmp_Message.uType = MB_OK;
-	int RealResult = funReal(&tmp_Message,nullptr);
-
-
-	st_argv_QueryWeather tmp_we;
-	tmp_we.string = "It's raining today";
-	tmp_we.string_len = strlen(tmp_we.string);
-
-	funQueryWeather(&tmp_we,WeatherCallBack);//
+		int_FUN_ADD funAdd =(int_FUN_ADD)fpAdd;
+		int_FUN_REAL funReal =(int_FUN_REAL)fpReal;
+		int_FUN_Standard funQueryWeather =(int_FUN_Standard)fpQueryWeather;
 
 
-	Sleep(6000);
+
+		int AddResult  = funAdd(5,6);
+
+
+		st_argv_MessageBoxA tmp_Message;
+		tmp_Message.hWnd = NULL;
+		tmp_Message.lpText = "Hi";
+		tmp_Message.lpCaption = "title";
+		tmp_Message.uType = MB_OK;
+		int RealResult = funReal(&tmp_Message,nullptr);
+
+
+		st_argv_QueryWeather tmp_we;
+		tmp_we.string = "It's raining today";
+		tmp_we.string_len = strlen(tmp_we.string);
+
+		funQueryWeather((char*)&tmp_we,WeatherCallBack);//
+
+
+		Sleep(6000);
+	}
+	else
+	{
+		HMODULE  test = LoadLibraryA("Client_fack.dll");
+		if (test==0)
+		{
+			MessageBoxA(0,"不存在dll","",MB_OK);
+		}
+		FARPROC fpAdd = GetProcAddress(test,"Add");		//导入算术测试
+		if (fpAdd==nullptr)
+		{
+			MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
+
+		}
+
+
+		int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
+
+		st_argv_Add tmp_Message;
+		tmp_Message.firstNumber = 5;
+		tmp_Message.secondNumber= 6;
+		int RealResult = funAdd((char*)&tmp_Message,nullptr);
+		if (RealResult==11)
+		{
+			MessageBoxA(0,"测试通过","",MB_OK);
+		}
+		else
+		{
+			MessageBoxA(0,"测试返回值错误","",MB_OK);
+		}
+
+
+	}
+
 
 	return 0;
 }

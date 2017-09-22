@@ -14,7 +14,7 @@ CFunctionInfo::~CFunctionInfo(void)
 	delete(m_safemap);
 	m_safemap = nullptr;
 }
-
+//sizeOfStruct/*参数结构体大小*/
 void CFunctionInfo::AddInfo(int SN,char* funcName,bool async,int ArgvStringNumber,int sizeOfStruct/*参数结构体大小*/)
 {
 	char* m_funcName = nullptr;

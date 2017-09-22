@@ -6,6 +6,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServiceDLL", "ServiceDLL\ServiceDLL.vcxproj", "{38A5FD5C-C332-43C9-837C-E6A056FBD48B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UserProc", "UserProc\UserProc.vcxproj", "{AF06331B-83D0-4064-BB16-87C8A8BBE1B6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CD076837-2E2F-414D-A757-462CAEF03B85} = {CD076837-2E2F-414D-A757-462CAEF03B85}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcxproj", "{CD076837-2E2F-414D-A757-462CAEF03B85}"
 EndProject
