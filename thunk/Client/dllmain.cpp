@@ -17,8 +17,12 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 		{
 			/*
 			³õÊ¼»¯functionInfo
-			//g_CI_Client->AddInfo();
+			g_CI_Client->AddInfo();
 			*/
+			char*strName = "Add";
+			
+
+			g_CI_Client->AddInfo(0,,);
 			
 
 

@@ -17,7 +17,27 @@ CFunctionInfo::~CFunctionInfo(void)
 
 void CFunctionInfo::AddInfo(int SN,char* funcName,bool async,int ArgvStringNumber,int sizeOfStruct/*参数结构体大小*/)
 {
-	st_VALUE value = {funcName,async,ArgvStringNumber,sizeOfStruct};
+	char* m_funcName = nullptr;
+	if (funcName!=nullptr)
+	{
+		int NameLen = strlen(funcName);
+		if (NameLen==0)
+		{
+			m_funcName = nullptr;
+		}
+		else
+		{
+			m_funcName = new char[NameLen+1]();
+			int stat = memcpy_s(m_funcName,NameLen,funcName,NameLen);
+			if (stat)
+			{
+				throw("memcpy_s return err.");
+			}
+		}
+	}
+
+
+	st_VALUE value = {m_funcName,async,ArgvStringNumber,sizeOfStruct};
 	m_safemap->push(SN,value);
 }
 

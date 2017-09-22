@@ -49,8 +49,15 @@ struct st_argv_MessageBoxA
 struct st_argv_QueryWeather
 {
 	const char*	string;
-	int						string_len;
+	int			string_len;
 
+};
+
+
+struct st_argv_Add
+{
+	int firstNumber;
+	int secondNumber;
 };
 
 
