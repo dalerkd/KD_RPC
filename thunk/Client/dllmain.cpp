@@ -31,7 +31,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 			g_CI_Client->AddInfo(funcNumber,"Add",false,ArgvPointerNumber,sizeof(st_argv_Add));
 			
-
+			//pCWEB->Recive_Data()
 
 			
 		}

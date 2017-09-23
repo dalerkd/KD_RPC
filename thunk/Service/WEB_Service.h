@@ -1,9 +1,9 @@
 #pragma once
-#include "..\public\web.h"
+#include "..\public\MailSlot.h"
 class CWEB_Service :
-	public CWEB
+	public CMailSlot
 {
-public:
+private:
 	void Recive_Data(char* flow,int flow_len);
 
 };

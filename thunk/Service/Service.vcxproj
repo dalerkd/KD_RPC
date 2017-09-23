@@ -82,6 +82,7 @@
     <ClInclude Include="..\public\DataFormat.h" />
     <ClInclude Include="..\public\debug.h" />
     <ClInclude Include="..\public\FunctionInfo.h" />
+    <ClInclude Include="..\public\MailSlot.h" />
     <ClInclude Include="..\public\SafeMap.h" />
     <ClInclude Include="..\public\SafeQueue.h" />
     <ClInclude Include="..\public\StateManage.h" />
@@ -96,6 +97,7 @@
     <ClCompile Include="..\public\DataFormat.cpp" />
     <ClCompile Include="..\public\debug.cpp" />
     <ClCompile Include="..\public\FunctionInfo.cpp" />
+    <ClCompile Include="..\public\MailSlot.cpp" />
     <ClCompile Include="..\public\SafeMap.cpp" />
     <ClCompile Include="..\public\SafeQueue.cpp" />
     <ClCompile Include="..\public\StateManage.cpp" />

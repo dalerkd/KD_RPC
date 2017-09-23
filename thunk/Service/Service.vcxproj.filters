@@ -57,6 +57,9 @@
     <ClInclude Include="..\public\WEB.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\MailSlot.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -90,6 +93,9 @@
       <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="..\public\WEB.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\MailSlot.cpp">
       <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>

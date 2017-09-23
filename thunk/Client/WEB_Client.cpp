@@ -4,14 +4,6 @@
 #include "WEB_Client.h"
 #include "Data_Format_Client.h"
 
-CWEB_Client::CWEB_Client(void)
-{
-}
-
-
-CWEB_Client::~CWEB_Client(void)
-{
-}
 
 void CWEB_Client::Recive_Data(char* flow,int flow_len)
 {

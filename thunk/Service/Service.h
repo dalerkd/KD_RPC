@@ -11,7 +11,7 @@
 
 
 CData_Format_Service g_CDF;
-CWEB* pCWEB =new CWEB_Service();
+CWEB* pCWEB =new CWEB_Service();//属于自动启动的
 
 
 //服务器函数信息

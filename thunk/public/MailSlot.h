@@ -10,14 +10,12 @@ public:
 
 	};
 	~CMailSlot();
-
+private:
 	void StartWork();
-
 	static unsigned int __stdcall TrySend(void* pM);
-	void Recive(char* data,int data_len);
-
 	static unsigned int __stdcall ThreadReceive(void* pM);
-
+public:
+	virtual void Recive_Data(char* data,int data_len)=0;
 
 private:
 	HANDLE m_Exit_Recive_Thread_EVENT;		//通知线程退出时激活
