@@ -51,6 +51,8 @@ public:
 	};
 
 
+virtual void StartWork()=0;
+
 	/*异步发送
 	1. 将数据复制到自己申请的空间
 	2. 保存到栈里
@@ -76,6 +78,7 @@ private:
 	/*！！！******产生异常：说明空了 exception::char*
 	用途：弹出一条发送任务
 	*/
+protected:
 	st_asysnc_queue_argv findAndPop();
 
 private:

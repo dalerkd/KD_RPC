@@ -14,7 +14,7 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="public">
-      <UniqueIdentifier>{f8197b84-3370-4a13-b5a3-5c380633cee9}</UniqueIdentifier>
+      <UniqueIdentifier>{b7840e0a-d8f3-4300-8d8c-29a91a9dca6b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,7 +27,7 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Client.h">
+    <ClInclude Include="TempWeb.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\public\DataFormat.h">
@@ -51,24 +51,15 @@
     <ClInclude Include="..\public\WEB.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="WEB_Client.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Data_Format_Client.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\MailSlot.h">
-      <Filter>public</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Client.cpp">
+    <ClCompile Include="Web.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="TempWeb.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\public\DataFormat.cpp">
@@ -90,15 +81,6 @@
       <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="..\public\WEB.cpp">
-      <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="WEB_Client.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Data_Format_Client.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\MailSlot.cpp">
       <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
