@@ -144,12 +144,12 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 		}
 		else//Í¬²½
 		{
-			int* ret		=	nullptr;
+			int* p_ret_to_wait_sync_value	=	nullptr;
 			char* pFormat	=	nullptr;
 			int PointerNumber= 0;
 			HANDLE hdEvent = INVALID_HANDLE_VALUE;
 
-			g_pssm->findAndPop(m_ID_proc,ret,pFormat,PointerNumber,hdEvent);
+			p_ret_to_wait_sync_value = g_pssm->findAndPop(m_ID_proc,pFormat,PointerNumber,hdEvent);
 			
 			if (PointerNumber!=pFlowBase->number_Of_Argv_Pointer)
 			{
@@ -219,6 +219,8 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 				}
 			}//-end-for
 			
+
+			*p_ret_to_wait_sync_value = pFlowBase->return_value;
 			if(0==SetEvent(hdEvent))
 			{
 				OutputDebug(L"Client_FlowToFormat_Execute:SetEvent invalid");

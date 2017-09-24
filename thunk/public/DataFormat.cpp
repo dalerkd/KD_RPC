@@ -153,7 +153,9 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 	//非指针参数长度=结构体总长度-指针数量在结构体中所占长度
 
 	//总的参数部分长度=非指针参数长度+一个长度位置标记+指针数据在流中所占总长度
-	tmp_length += sizeOfStruct-ArgvPointerNumber*sizeof(int)*2+sizeof(int);//毕竟非指针参数此时要开始占长度位置，如果一下子不理解看两个结构。
+	int t_ArgvLength = sizeOfStruct-ArgvPointerNumber*sizeof(int)*2;
+
+	tmp_length += t_ArgvLength+(t_ArgvLength?sizeof(int):0);//如果非指针参数为0,那就不用长度来表示非指针参数了。
 
 	psdf->length_Of_Argv_Struct = tmp_length;
 
@@ -290,8 +292,8 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 
 	//总长度=指针参数长度+加上最后的非指针参数的长度+长度占地
 	real_argv_length +=other_Length;
-	const int SIZEOF_NON_POINTER_LENGTH=1;/*非指针类结构体长度*/
-	real_argv_length +=(pFlowBase->number_Of_Argv_Pointer + SIZEOF_NON_POINTER_LENGTH)*sizeof(int);
+	/*非指针类结构体长度为0的时候不占地方*/
+	real_argv_length +=(pFlowBase->number_Of_Argv_Pointer + (other_Length?1:0))*sizeof(int);
 
 
 	if (real_argv_length!=pFlowBase->length_Of_Argv_Struct)

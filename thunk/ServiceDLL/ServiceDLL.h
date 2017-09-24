@@ -22,11 +22,26 @@ extern SERVICEDLL_API int nServiceDLL;
 SERVICEDLL_API int fnServiceDLL(void);
 
 
-extern"C" __declspec(dllexport)int Add(int a,int b)
+
+//////////////////////////////////////////////////////////////////////////
+struct st_argv_Add
 {
-	return a+b;
+	int firstNumber;
+	int secondNumber;
+};
+typedef void (_cdecl* RPC_CallBack)(const char*,int len);//RPC回调原形
+typedef  int (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
+
+
+
+extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char*)
+{
+	
+	return p->firstNumber+p->secondNumber;
 
 }
+//////////////////////////////////////////////////////////////////////////
+
 //MessageBoxA(0,"","",MB_OK)
 //MessageBoxA(_In_opt_ HWND hWnd, _In_opt_ LPCSTR lpText, _In_opt_ LPCSTR lpCaption, _In_ UINT uType)
 struct st_argv 

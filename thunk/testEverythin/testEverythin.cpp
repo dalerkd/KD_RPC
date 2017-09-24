@@ -136,6 +136,9 @@
 //};
 
 
+
+
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	CSafeQueueAutoPointerManage* p =new CSafeQueueAutoPointerManage();
@@ -152,19 +155,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//printf("%s",b?"Hi":"Will");
 
 
-	HANDLE  ha = CreateEvent(NULL,TRUE,FALSE,NULL);
 
-	DWORD dw = WaitForSingleObject(ha,0);
-	if (dw==WAIT_TIMEOUT)
-	{
-		//没有触发
-		printf("..");
-	}
-	else if (dw==WAIT_OBJECT_0 )
-	{
-		//已经触发
-		printf("...");
-	}
+
 
 
 

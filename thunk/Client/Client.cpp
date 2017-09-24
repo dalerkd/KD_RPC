@@ -140,7 +140,7 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 		}
 		else//同步处理
 		{
-			int ret;//返回值
+			int ret = 0;//返回值
 			int PointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
 
 			//Event
