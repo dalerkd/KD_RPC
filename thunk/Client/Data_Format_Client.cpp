@@ -50,7 +50,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 	}
 
 	//copy Ö¸Õë
-	const st_data_flow* pFlowBase =(st_data_flow*) new char(p->flow_len);
+	const st_data_flow* pFlowBase =(st_data_flow*) new char[p->flow_len]();
 
 	int stat = memcpy_s((char*)pFlowBase,p->flow_len,p->flow,p->flow_len);
 	if (stat)

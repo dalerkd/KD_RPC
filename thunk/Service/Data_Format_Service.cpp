@@ -55,7 +55,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	}
 
 	//copy 指针
-	const st_data_flow* pFlowBase =(st_data_flow*) new char(p->flow_len);
+	const st_data_flow* pFlowBase =(st_data_flow*) new char[p->flow_len]();
 
 	int stat = memcpy_s((char*)pFlowBase,p->flow_len,p->flow,p->flow_len);
 	if (stat)
@@ -89,7 +89,12 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 			throw("real_len=0?");
 		}
 
+		
+		//堆烂了
 		pArgvCall = new char[real_len]();
+
+
+
 		queue_memory_manage = new CSafeQueueAutoPointerManage();
 		if (false == bAsync&& RECV_INFO==pFlowBase->work_type)
 		{
@@ -134,7 +139,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 
 
 	//这里的代码需要迁移到更高层全局去。
-	char* dllName = "Service.dll";
+	char* dllName = "ServiceDLL.dll";
 	HMODULE hServiceDLL = LoadLibraryA(dllName);
 	if (NULL==hServiceDLL)
 	{
