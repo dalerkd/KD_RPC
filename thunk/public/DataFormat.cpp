@@ -47,9 +47,14 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 		throw("Format2Flow: Warming: Sync function can't permit have callback");
 	}
 
-	//为什么这么算？看st_data_flow和st_argv_Node_Struct结构
-	const int NO_POINTER_NUMBER = 1;
-	int m_real_length = sizeof(st_data_flow) + sizeof(int)*(ArgvPointerNumber+NO_POINTER_NUMBER);
+
+	//先计算长度信息所占空间
+	/*
+	如果非指针参数长度为0,即不存在非指针参数，则非指针参数长度 不会出现在Flow中。
+	*/
+	int no_pointer_argv_length = sizeOfStruct - 2*sizeof(int)*ArgvPointerNumber;
+	int m_real_length = sizeof(st_data_flow) + sizeof(int)*(ArgvPointerNumber+(no_pointer_argv_length?1:0));
+
 
 	if (nullptr==pStruct)//无参数
 	{
@@ -63,7 +68,7 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 		}
 	}
 	else
-	{
+	{//计算指针数据长度
 		int* ptmp =(int*) pStruct;
 		for (int i=0;i<ArgvPointerNumber;++i)
 		{
@@ -72,6 +77,11 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 			m_real_length+=*tmp;
 		}
 	}
+
+	m_real_length += no_pointer_argv_length;//加上非指针参数的数据长度
+
+
+
 	if (0==real_len)
 	{
 		return m_real_length;
@@ -98,7 +108,7 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 	psdf->return_value = ret_value;
 	psdf->argvTypeOption = argvTypeOption;
 
-	psdf->length_Of_Argv_Struct = m_real_length-sizeof(st_data_flow);
+	//psdf->length_Of_Argv_Struct;//后面有赋值
 	psdf->number_Of_Argv_Pointer = ArgvPointerNumber;
 
 	int* pBase =(int*) pStruct;
@@ -135,10 +145,38 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 		tmp_length+=*ptmp_length;
 	}
 
+	//指针数据在流中所占总长度=指针数据的长度和+长度标记信息所占位置
 	tmp_length += ArgvPointerNumber*sizeof(int);//+长度信息所占位置
+
+	/*注意：非指针参数也需要一个长度位置标记自己的长度在Flow中。*/
+
+	//非指针参数长度=结构体总长度-指针数量在结构体中所占长度
+
+	//总的参数部分长度=非指针参数长度+一个长度位置标记+指针数据在流中所占总长度
 	tmp_length += sizeOfStruct-ArgvPointerNumber*sizeof(int)*2+sizeof(int);//毕竟非指针参数此时要开始占长度位置，如果一下子不理解看两个结构。
 
 	psdf->length_Of_Argv_Struct = tmp_length;
+
+	//写非指针参数长度 和 数据到Flow里面去。
+
+
+
+
+	if (no_pointer_argv_length)
+	{
+		*(int*)(psdf->argv_Struct+offset)=no_pointer_argv_length;
+		offset+=sizeof(int);
+
+		char* pArgv_Format = pStruct+ArgvPointerNumber*sizeof(int)*2;
+
+		int stat = memcpy_s(psdf->argv_Struct+offset,no_pointer_argv_length,pArgv_Format,no_pointer_argv_length);
+		if (stat)
+		{
+			throw("memcpy_s return err.");
+		}
+	}
+
+
 
 	return m_real_length;
 }
@@ -165,10 +203,10 @@ char*	pSecondCopyArgv		用于同步参数修改状态对比-只用在服务端的同步对比时。调用者
 CSafeQueueAutoPointerManage* queue_memory_copy 只管理Format备份内存指针,
 
 Exception:
-	类型	介绍			建议
-	----------------------------
-	char*	|内部逻辑问题|	挂起
-	int		|数据格式问题|	非调试状态可以忽略
+类型	介绍			建议
+----------------------------
+char*	|内部逻辑问题|	挂起
+int		|数据格式问题|	非调试状态可以忽略
 
 
 return 占用的数据长度
@@ -178,7 +216,7 @@ return 占用的数据长度
 int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 							 char* pArgvCall,int Real_Format_len, CSafeQueueAutoPointerManage* queue_memory_manage,
 							 char* pSecondCopyArgv,CSafeQueueAutoPointerManage* queue_memory_copy
-							  )
+							 )
 {
 
 	if (nullptr==pFlow||Flow_len<sizeof(st_data_flow))
@@ -197,9 +235,9 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 	总长度 = 头 + 尾
 	length_of_this_struct = sizeof(st_data_flow) + length_Of_Argv_Struct
 	*/
-	if (pFlowBase->length_of_this_struct - sizeof(st_data_flow)!= pFlowBase->number_Of_Argv_Pointer)
+	if (pFlowBase->length_of_this_struct - sizeof(st_data_flow)!= pFlowBase->length_Of_Argv_Struct)
 	{
-		OutputDebug(L"FlowToFormat:Input struct Format Error:number_Of_Argv_Pointer != length_of_this_struct-sizeof(struct head)");
+		OutputDebug(L"FlowToFormat:Input struct Format Error:length_Of_Argv_Struct != length_of_this_struct-sizeof(struct head)");
 		throw(0x11);
 	}
 
@@ -225,10 +263,30 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 		int m_pointer_len = *(int*)(argv_Base+offset);
 		real_argv_length += m_pointer_len;
 
-		offset += m_pointer_len+sizeof(int);
+		offset += sizeof(int)+m_pointer_len;//本身长度+宣称的长度
 	}
 	//最后的非指针参数的长度
-	int other_Length = *(int*)(argv_Base+offset);
+	int other_Length = 0;
+	int tmp_argv_length =pFlowBase->length_Of_Argv_Struct;
+	/*
+	size > off	:
+	size = off	:
+	size < off	:Error
+	*/
+	if (tmp_argv_length>offset)
+	{//有非指针参数
+		other_Length = *(int*)(argv_Base+offset);
+	}
+	else if (tmp_argv_length==offset)
+	{//没有非指针参数
+		other_Length = 0;
+	}
+	else
+	{
+		OutputDebug(L"This is logic Error.");
+		throw("This is logic Error.");
+	}
+
 
 	//总长度=指针参数长度+加上最后的非指针参数的长度+长度占地
 	real_argv_length +=other_Length;
@@ -244,7 +302,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 
 	//这个长度被调用者知道哟，只是我们不知道哟，所以我们给个指针就完事。
 	const int format_len = pFlowBase->number_Of_Argv_Pointer*2*sizeof(int)+other_Length;
-	
+
 	if(0==Real_Format_len)
 	{
 		return format_len;
@@ -268,7 +326,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 
 	//用于同步参数修改状态对比-只用在服务端的同步对比时
 	//char* pSecondCopyArgv = nullptr;外部提供
-	
+
 	//只管理申请的参数指针内存指针
 	//CSafeQueueAutoPointerManage* queue_memory_manage = nullptr;由外部提供
 
@@ -319,7 +377,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 					{
 						queue_memory_manage->push(pPointerData);
 					}
-					
+
 					//用户数据在flow中的指针
 					char* pointer_data =(char*)(argv_Base+argv_flow_offset);
 
@@ -353,7 +411,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 					{
 						queue_memory_manage->push(nullptr);//空指针也要入啊，不然影响次序
 					}
-					
+
 					if (nullptr!=pSecondCopyArgv/*false == bAsync&& RECV_INFO==pFlowBase->work_type*/)
 					{
 						if (queue_memory_copy)
@@ -363,7 +421,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 					}
 				}
 				/*
-				
+
 				填充Format结构
 				*/
 				char* point = pArgvCall + argv_format_offset;
@@ -385,33 +443,60 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 				argv_flow_offset += m_pointer_len+sizeof(int);
 			}//-for-end
 
-
+		//////////////////////////////////////////////////////////////////////////
 			//最后的非指针参数的长度
-			int other_Length = *(int*)(argv_Base+argv_flow_offset);
+		
+			int other_Length = 0;
+			int tmp_argv_length =pFlowBase->length_Of_Argv_Struct;
+			/*
+			size > off	:
+			size = off	:
+			size < off	:Error
+			*/
+			if (tmp_argv_length>offset)
+			{//有非指针参数
+				other_Length = *(int*)(argv_Base+offset);
+			}
+			else if (tmp_argv_length==offset)
+			{//没有非指针参数
+				other_Length = 0;
+			}
+			else
+			{
+				OutputDebug(L"This is logic Error.");
+				throw("This is logic Error.");
+			}
+
 
 			//copy
 			argv_flow_offset+=sizeof(int);
 			char* p_format_end_data = pArgvCall + argv_format_offset;
 			char* p_flow_end_data = (char*)argv_Base+argv_flow_offset;
 
-			int stat = memcpy_s(p_format_end_data,other_Length,p_flow_end_data,other_Length);
-			if (stat)
+			if (other_Length!=0)
 			{
-				throw("memcpy_s p_format_end_data return err.");
+				int stat = memcpy_s(p_format_end_data,other_Length,p_flow_end_data,other_Length);
+				if (stat)
+				{
+					throw("memcpy_s p_format_end_data return err.");
+				}
 			}
 
-			
-			
+
 			//如果是同步函数，后面的非指针参数也要备份一下。
 			if (nullptr!=pSecondCopyArgv/*false == bAsync&& RECV_INFO==pFlowBase->work_type*/)
 			{
 				char* p_format_end_data_copy = pSecondCopyArgv + argv_flow_offset;
 
-				int stat = memcpy_s(p_format_end_data_copy,other_Length,p_flow_end_data,other_Length);
-				if (stat)
+				if (other_Length!=0)
 				{
-					throw("memcpy_s p_format_end_data return err.");
+					int stat = memcpy_s(p_format_end_data_copy,other_Length,p_flow_end_data,other_Length);
+					if (stat)
+					{
+						throw("memcpy_s p_format_end_data return err.");
+					}
 				}
+
 			}
 
 		}

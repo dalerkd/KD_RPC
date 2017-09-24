@@ -7,6 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServiceDLL", "ServiceDLL\Se
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UserProc", "UserProc\UserProc.vcxproj", "{AF06331B-83D0-4064-BB16-87C8A8BBE1B6}"
 	ProjectSection(ProjectDependencies) = postProject
+		{DF25C61F-7E72-4874-A45D-5D87CE2F67F2} = {DF25C61F-7E72-4874-A45D-5D87CE2F67F2}
 		{CD076837-2E2F-414D-A757-462CAEF03B85} = {CD076837-2E2F-414D-A757-462CAEF03B85}
 	EndProjectSection
 EndProject
@@ -15,6 +16,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testEverythin", "testEverythin\testEverythin.vcxproj", "{2E6BA847-1E0F-456E-812D-3E5DD7ED4BE8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Service", "Service\Service.vcxproj", "{DF25C61F-7E72-4874-A45D-5D87CE2F67F2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CD076837-2E2F-414D-A757-462CAEF03B85} = {CD076837-2E2F-414D-A757-462CAEF03B85}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Web", "Web\Web.vcxproj", "{1327F7F8-1FD3-4008-A9CF-4061D339AB70}"
 EndProject
