@@ -32,13 +32,14 @@ struct st_argv_Add
 typedef void (_cdecl* RPC_CallBack)(const char*,int len);//RPC回调原形
 typedef  int (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
 
-
+#include <windows.h>
+#include <stdio.h>
 //测试1： 同步，无指针，返回值
 extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char* cb)
 {
 	if (cb!=nullptr)
 	{
-		throw("err");
+		printf("err:Add cb!=nullptr");
 	}
 	
 	return p->firstNumber+p->secondNumber;
@@ -47,13 +48,11 @@ extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char* cb)
 
 
 //测试3： 异步，无指针，无回调
-#include <windows.h>
-#include <stdio.h>
 extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,char* cb)
 {
 	if (cb!=nullptr)
 	{
-		throw("err");
+		printf("err:Add_Async_NoCallback cb!=nullptr");
 	}
 	char str[10] ={0};
 	sprintf_s(str,"%d",p->firstNumber+p->secondNumber);
