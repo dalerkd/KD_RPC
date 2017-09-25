@@ -139,10 +139,11 @@ int _tmain(int argc, _TCHAR* argv[])
 /*
 1. 无指针参数：检查返回值
 */
+		HMODULE  test = LoadLibraryA("Client_fack.dll");
 		{
 			OutputDebug(L"Test1:Start:无指针参数:检查返回值");
 
-			HMODULE  test = LoadLibraryA("Client_fack.dll");
+			
 			if (test==0)
 			{
 				MessageBoxA(0,"不存在dll","",MB_OK);
@@ -170,8 +171,8 @@ int _tmain(int argc, _TCHAR* argv[])
 				OutputDebug(L"Test1:Fault:");
 				MessageBoxA(0,"测试返回值错误","",MB_OK);
 			}
-			FreeLibrary(test);
-			test = 0;
+			//FreeLibrary(test);
+			//test = 0;
 			
 		}
 /*
@@ -189,7 +190,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			OutputDebug(L"Test3:Start:异步.无回调");
 
-			HMODULE  test = LoadLibraryA("Client_fack.dll");
 			if (test==0)
 			{
 				MessageBoxA(0,"不存在dll","",MB_OK);
@@ -208,7 +208,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			tmp_Message.firstNumber = 5;
 			tmp_Message.secondNumber= 6;
 			int RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==0)
+			if (RealResult==true)
 			{
 				OutputDebug(L"Test3:Pass:");//MessageBoxA(0,"测试通过","",MB_OK);
 			}
@@ -217,7 +217,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				OutputDebug(L"Test3:Fault:");
 				MessageBoxA(0,"测试返回值错误","",MB_OK);
 			}
-			FreeLibrary(test);
+			//FreeLibrary(test);
 			test = 0;
 		}
 /*

@@ -56,7 +56,7 @@ extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,char* cb)
 	}
 	char str[10] ={0};
 	sprintf_s(str,"%d",p->firstNumber+p->secondNumber);
-	MessageBoxA(0,str,NULL,MB_OK);
+	MessageBoxA(0,str,"Result is",MB_OK);
 	return 0;
 
 }
