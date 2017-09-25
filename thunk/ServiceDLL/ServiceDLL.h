@@ -33,36 +33,13 @@ typedef void (_cdecl* RPC_CallBack)(const char*,int len);//RPC回调原形
 typedef  int (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
 
 
-//测试1： 同步，无指针，返回值
-extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char* cb)
+
+extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char*)
 {
-	if (cb!=nullptr)
-	{
-		throw("err");
-	}
 	
 	return p->firstNumber+p->secondNumber;
 
 }
-
-
-//测试3： 异步，无指针，无回调
-#include <windows.h>
-#include <stdio.h>
-extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,char* cb)
-{
-	if (cb!=nullptr)
-	{
-		throw("err");
-	}
-	char str[10] ={0};
-	sprintf_s(str,"%d",p->firstNumber+p->secondNumber);
-	MessageBoxA(0,str,NULL,MB_OK);
-	return 0;
-
-}
-
-
 //////////////////////////////////////////////////////////////////////////
 
 //MessageBoxA(0,"","",MB_OK)

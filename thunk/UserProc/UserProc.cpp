@@ -4,8 +4,6 @@
 #include "stdafx.h"
 #include <string.h>
 #include <windows.h>
-#include "../public/debug.h"
-
 /*
 解析头文件也很简单，什么时候解析？
 总之初始化程序运行起来会向服务器请求数据获得头文件并写在本地(或者内存)。
@@ -81,19 +79,6 @@ typedef  int (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
 
 void WeatherCallBack(const char*,int len);
 
-/*
-添加框架函数的步骤：
-1. 按照规范添加服务器导出函数
-2. 添加本地调用函数
-
-3. 添加Client函数注册代码
-4. 添加Service函数注册代码
-
-
-*/
-
-
-
 int _tmain(int argc, _TCHAR* argv[])
 {
 	bool Yuan = false;
@@ -136,96 +121,34 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else
 	{
-/*
-1. 无指针参数：检查返回值
-*/
+		HMODULE  test = LoadLibraryA("Client_fack.dll");
+		if (test==0)
 		{
-			OutputDebug(L"Test1:Start:无指针参数:检查返回值");
-
-			HMODULE  test = LoadLibraryA("Client_fack.dll");
-			if (test==0)
-			{
-				MessageBoxA(0,"不存在dll","",MB_OK);
-			}
-			FARPROC fpAdd = GetProcAddress(test,"Add");		//导入算术测试
-			if (fpAdd==nullptr)
-			{
-				MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
-
-			}
-
-
-			int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
-
-			st_argv_Add tmp_Message;
-			tmp_Message.firstNumber = 5;
-			tmp_Message.secondNumber= 6;
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==11)
-			{
-				OutputDebug(L"Test1:Pass:");//MessageBoxA(0,"测试通过","",MB_OK);
-			}
-			else
-			{
-				OutputDebug(L"Test1:Fault:");
-				MessageBoxA(0,"测试返回值错误","",MB_OK);
-			}
-			FreeLibrary(test);
-			test = 0;
-			
+			MessageBoxA(0,"不存在dll","",MB_OK);
 		}
-/*
-2. 有指针参数：检查返回值和指针修改情况
-- 标准模式
-- 快速模式
-*/
+		FARPROC fpAdd = GetProcAddress(test,"Add");		//导入算术测试
+		if (fpAdd==nullptr)
 		{
-			
-		}
-/*
-- 异步：
-1. 无回调
-*/
-		{
-			OutputDebug(L"Test3:Start:异步.无回调");
-
-			HMODULE  test = LoadLibraryA("Client_fack.dll");
-			if (test==0)
-			{
-				MessageBoxA(0,"不存在dll","",MB_OK);
-			}
-			FARPROC fpAdd = GetProcAddress(test,"Add_Async_NoCallback");		//导入算术测试
-			if (fpAdd==nullptr)
-			{
-				MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
-
-			}
-
-
-			int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
-
-			st_argv_Add tmp_Message;
-			tmp_Message.firstNumber = 5;
-			tmp_Message.secondNumber= 6;
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==0)
-			{
-				OutputDebug(L"Test3:Pass:");//MessageBoxA(0,"测试通过","",MB_OK);
-			}
-			else
-			{
-				OutputDebug(L"Test3:Fault:");
-				MessageBoxA(0,"测试返回值错误","",MB_OK);
-			}
-			FreeLibrary(test);
-			test = 0;
-		}
-/*
-2. 有回调：检查回调信息情况
-*/
-		{
+			MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
 
 		}
+
+
+		int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
+
+		st_argv_Add tmp_Message;
+		tmp_Message.firstNumber = 5;
+		tmp_Message.secondNumber= 6;
+		int RealResult = funAdd((char*)&tmp_Message,nullptr);
+		if (RealResult==11)
+		{
+			MessageBoxA(0,"测试通过","",MB_OK);
+		}
+		else
+		{
+			MessageBoxA(0,"测试返回值错误","",MB_OK);
+		}
+
 
 	}
 

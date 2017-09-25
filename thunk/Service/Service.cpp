@@ -21,10 +21,13 @@ struct st_argv_Add
 */
 void Start()
 {
-	int ArgvPointerNumber = 0;
 
-	g_CI_Service->AddInfo(1,"Add",false,ArgvPointerNumber,sizeof(st_argv_Add));
-	g_CI_Service->AddInfo(2,"Add_Async_NoCallback",true,ArgvPointerNumber,sizeof(st_argv_Add));
+	const int funcNumber = 1;
+	const int ArgvPointerNumber = 0;
+
+	g_CI_Service->AddInfo(funcNumber,"Add",false,ArgvPointerNumber,sizeof(st_argv_Add));
+	
+	
 
 
 }
