@@ -25,11 +25,12 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 			³õÊ¼»¯functionInfo
 			g_CI_Client->AddInfo();
 			*/
+			int ArgvPointerNumber = 0;
 
-			const int funcNumber = 1;
-			const int ArgvPointerNumber = 0;
+			g_CI_Client->AddInfo(1,"Add",false,ArgvPointerNumber,sizeof(st_argv_Add));
+			g_CI_Client->AddInfo(2,"Add_Async_NoCallback",true,ArgvPointerNumber,sizeof(st_argv_Add));
 
-			g_CI_Client->AddInfo(funcNumber,"Add",false,ArgvPointerNumber,sizeof(st_argv_Add));
+			
 			
 			//pCWEB->Recive_Data()
 

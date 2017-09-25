@@ -80,6 +80,7 @@ unsigned int __stdcall CMailSlot::TrySend(void* pM)
 			{
 				//ÒÑ¾­´¥·¢
 				SetEvent(CMS->m_Exit_Send_Thread_EVENT_OK);
+				OutputDebug(L"TrySend Thread Exiting");
 				break;
 			}
 		}
