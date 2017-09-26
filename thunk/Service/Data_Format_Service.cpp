@@ -393,6 +393,12 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	//同步由本函数做参数检查和返回值检查
 }
 
+struct argv_tmp 
+{
+	char* p;
+	int p_len;
+};
+
 /*
 服务器上fack回调。
 
@@ -419,7 +425,8 @@ void CData_Format_Service::ServiceAsyncCallBack(char* p,int p_len)
 
 	*/
 	char* pStruct = new char[2*sizeof(int)]();//struct {char* ,int len}
-
+	((argv_tmp*)pStruct)->p = p;
+	((argv_tmp*)pStruct)->p_len = p_len;
 
 	{
 		

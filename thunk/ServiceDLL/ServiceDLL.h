@@ -4,6 +4,11 @@
 // 任何其他项目上不应定义此符号。这样，源文件中包含此文件的任何其他项目都会将
 // SERVICEDLL_API 函数视为是从 DLL 导入的，而此 DLL 则将用此宏定义的
 // 符号视为是被导出的。
+
+#include "../public/debug.h"
+
+
+
 #ifdef SERVICEDLL_EXPORTS
 #define SERVICEDLL_API __declspec(dllexport)
 #else
@@ -39,7 +44,7 @@ extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char* cb)
 {
 	if (cb!=nullptr)
 	{
-		printf("err:Add cb!=nullptr");
+		OutputDebug(L"err:Add cb!=nullptr");
 	}
 	
 	return p->firstNumber+p->secondNumber;
@@ -48,15 +53,22 @@ extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char* cb)
 
 
 //测试3： 异步，无指针，无回调
-extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,char* cb)
+extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,RPC_CallBack cb)
 {
 	if (cb!=nullptr)
 	{
-		printf("err:Add_Async_NoCallback cb!=nullptr");
+		char str[]={'r','e','s','u','l','t','i','s',':','1','1','\0'};
+		cb(str,strlen(str)+1);
 	}
-	char str[10] ={0};
+	else
+	{
+		OutputDebug(L"Test3:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
+	}
+	/*char str[10] ={0};
 	sprintf_s(str,"%d",p->firstNumber+p->secondNumber);
 	MessageBoxA(0,str,"Result is",MB_OK);
+	*/
+
 	return 0;
 
 }

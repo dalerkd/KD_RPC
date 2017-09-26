@@ -22,6 +22,12 @@ CData_Format_Client::~CData_Format_Client(void)
 {
 }
 
+struct st_async_callback_argv_return
+{
+	char* data;
+	int data_len;
+};
+
 typedef void (*callback_real)(char*,int); 
 unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp) //由它来自行区分是否异步,并走不同的流程。
 {
@@ -133,7 +139,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 
 			try
 			{
-				Real_Call(pArgvCall,real_len);
+				Real_Call(((st_async_callback_argv_return*)pArgvCall)->data,((st_async_callback_argv_return*)pArgvCall)->data_len);
 			}
 			catch(...)
 			{

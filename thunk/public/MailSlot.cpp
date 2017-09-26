@@ -190,7 +190,7 @@ unsigned int __stdcall CMailSlot::ThreadReceive(PVOID pM)
 			}
 			//显示信息
 
-			HexDump(L"数据内容:",lpReciveBuffer,dwMsgSize);
+			HexDump(L"Recive数据内容:",lpReciveBuffer,dwMsgSize);
 
 			CMS->Recive_Data((char*)lpReciveBuffer,dwMsgSize);//未做数据长度等多次等待处理
 

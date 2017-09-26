@@ -73,7 +73,7 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 		for (int i=0;i<ArgvPointerNumber;++i)
 		{
 			int* tmp;
-			tmp = ptmp+(i+1)*sizeof(int);
+			tmp = ptmp+(i+1);
 			m_real_length+=*tmp;
 		}
 	}
@@ -120,8 +120,8 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 	{
 		int* ptmp_length;
 		int* ptmp_pointer;
-		ptmp_pointer= pBase+i*sizeof(int);
-		ptmp_length	= pBase+(i+1)*sizeof(int);
+		ptmp_pointer= pBase+i;
+		ptmp_length	= pBase+(i+1);
 
 		//check
 		if (nullptr == (char*)*ptmp_pointer&&0!=*ptmp_length)
@@ -379,15 +379,18 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 					{
 						queue_memory_manage->push(pPointerData);
 					}
-
+					
 					//用户数据在flow中的指针
-					char* pointer_data =(char*)(argv_Base+argv_flow_offset);
+					char* pointer_data =(char*)(argv_Base+argv_flow_offset+1*sizeof(int));//+数据长度的位置，数据在长度后面
 
 					int stat=memcpy_s(pPointerData,m_pointer_len,pointer_data,m_pointer_len);
 					if (stat)
 					{
 						throw("memcpy_s pPointerData return err.");
 					}
+					//			pArgvCall没有被填充内容，我去。！！！
+
+
 
 					//检查是否是同步，是的话：备份指针，以便调用后对比结果。
 					if (nullptr!=pSecondCopyArgv /*false == bAsync&& RECV_INFO==pFlowBase->work_type*/)
@@ -442,7 +445,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 				}
 				argv_format_offset+=sizeof(int)+sizeof(int);//指针+长度
 
-				argv_flow_offset += m_pointer_len+sizeof(int);
+				argv_flow_offset += +sizeof(int)+m_pointer_len;
 			}//-for-end
 
 		//////////////////////////////////////////////////////////////////////////
