@@ -181,7 +181,11 @@ extern"C" __declspec(dllexport)int Add_Async_NoCallback(PVOID pStruct,FARPROC ca
 	return Core(m_SN,pStruct,callBack);
 }
 
-
+extern"C" __declspec(dllexport)int Test2_Sync(PVOID pStruct,FARPROC callBack)
+{
+	int m_SN = 3;
+	return Core(m_SN,pStruct,callBack);
+}
 
 
 

@@ -34,6 +34,17 @@ struct st_argv_Add
 	int firstNumber;
 	int secondNumber;
 };
+
+struct st_argv_test2
+{
+	char* firstStr;
+	int   firstStr_len;
+	char* secondStr;
+	int   secondStr_len;
+	char  other_argv_c;
+	float f_f;
+};
+
 typedef void (_cdecl* RPC_CallBack)(const char*,int len);//RPC回调原形
 typedef  int (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
 
@@ -72,7 +83,53 @@ extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,RPC_CallB
 	return 0;
 
 }
+////测试2 同步，各种情况,other_argv_c决定
+/*  1. 第一指针为空，第二指针不为空。
+	2. 第一指针为空，第二指针为空。
+	3. 第一指针不为空-第二指针为空。
+	4. 第一指针不为空-第一个指针数据有修改，第二个指针数据不为空的情况。
+	5. 第一指针不为空-第二个指针数据有修改，第二个指针数据不为空的情况。
+*/
 
+extern"C" __declspec(dllexport)int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
+{
+	if (cb!=nullptr)
+	{
+		OutputDebug(L"Test3:Error:cb!=nullptr");
+		return -1;
+	}
+
+	if (p->firstStr==nullptr)
+	{
+		if (p->other_argv_c==0)
+		{
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}	
+	}
+	else
+	{
+		if (p->other_argv_c==0)
+		{
+			return 3;
+		}
+		else
+		{
+			for (int i=0;i<p->firstStr_len;++i)//修改数据
+			{
+				p->firstStr[i] = i;
+			}
+			return 4;
+		}
+	}
+	
+
+
+
+}
 
 //////////////////////////////////////////////////////////////////////////
 

@@ -12,6 +12,15 @@ struct st_argv_Add
 	int firstNumber;
 	int secondNumber;
 };
+struct st_argv_test2
+{
+	char* firstStr;
+	int   firstStr_len;
+	char* secondStr;
+	int   secondStr_len;
+	char  other_argv_c;
+	float f_f;
+};
 
 
 /*
@@ -25,7 +34,7 @@ void Start()
 
 	g_CI_Service->AddInfo(1,"Add",false,ArgvPointerNumber,sizeof(st_argv_Add));
 	g_CI_Service->AddInfo(2,"Add_Async_NoCallback",true,ArgvPointerNumber,sizeof(st_argv_Add));
-
+	g_CI_Service->AddInfo(3,"Test2_Sync",false,2,sizeof(st_argv_test2));
 
 }
 
