@@ -333,7 +333,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			else
 			{
-				OutputDebug(L"Test2:2:Fault:");
+				OutputDebug(L"Test2:5:Fault:");
 			}
 			//////////////////////////////////////////////////////////////////////////
 

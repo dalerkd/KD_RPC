@@ -99,34 +99,68 @@ extern"C" __declspec(dllexport)int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
 		return -1;
 	}
 
-	if (p->firstStr==nullptr)
+	switch (p->other_argv_c)
 	{
-		if (p->other_argv_c==0)
+	case 1:
+		if (p->firstStr!=nullptr||p->secondStr==nullptr)
 		{
-			return 0;
+			return 11;
 		}
 		else
 		{
 			return 1;
-		}	
-	}
-	else
-	{
-		if (p->other_argv_c==0)
+		}
+		break;
+	case 2:
+		if (p->firstStr!=nullptr||p->secondStr!=nullptr)
 		{
-			return 3;
+			return 22;
 		}
 		else
 		{
-			for (int i=0;i<p->firstStr_len;++i)//ÐÞ¸ÄÊý¾Ý
-			{
-				p->firstStr[i] = i;
-			}
+			return 2;
+		}
+		break;
+	case 3:
+		if (p->firstStr==nullptr||p->secondStr!=nullptr)
+		{
+			return 33;
+		}
+		else
+		{
+			return 3;
+		}
+		break;
+	case 4:
+		if (p->firstStr==nullptr||p->secondStr==nullptr)
+		{
 			return 4;
 		}
+		else
+		{
+			for (int i=0;i<p->firstStr_len;++i)
+			{
+				p->firstStr[i]=0;
+			}
+		}
+		break;
+	case 5:
+		if (p->firstStr==nullptr||p->secondStr==nullptr)
+		{
+			return 5;
+		}
+		else
+		{
+			for (int i=0;i<p->secondStr_len;++i)
+			{
+				p->secondStr[i]=0;
+			}
+		}
+		break;
+	default:
+		return 99;
+		break;
 	}
-	
-
 
 
 }
