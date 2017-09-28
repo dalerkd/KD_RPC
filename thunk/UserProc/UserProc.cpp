@@ -149,7 +149,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		*/
 		HMODULE  test = LoadLibraryA("Client_fack.dll");
 		{
-			OutputDebug(L"Test1:Start:无指针参数:检查返回值.\r\n");
+			OutputDebug("Test1:Start:无指针参数:检查返回值.\r\n");
 
 
 			if (test==0)
@@ -172,11 +172,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			int RealResult = funAdd((char*)&tmp_Message,nullptr);
 			if (RealResult==11)
 			{
-				OutputDebug(L"Test1:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
+				OutputDebug("Test1:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
 			}
 			else
 			{
-				OutputDebug(L"Test1:Fault:");
+				OutputDebug("Test1:Fault:");
 				MessageBoxA(0,"测试返回值错误","",MB_OK);
 			}
 			//FreeLibrary(test);
@@ -198,7 +198,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		*/
 
 		{
-			OutputDebug(L"Test2:Start:无指针参数:检查返回值.\r\n");
+			OutputDebug("Test2:Start:无指针参数:检查返回值.\r\n");
 
 
 			if (test==0)
@@ -228,11 +228,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			int RealResult = funAdd((char*)&tmp_Message,nullptr);
 			if (RealResult==1)
 			{
-				OutputDebug(L"Test2:1:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
+				OutputDebug("Test2:1:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
 			}
 			else
 			{
-				OutputDebug(L"Test2:1:Fault:");
+				OutputDebug("Test2:1:Fault:");
 			}
 			//////////////////////////////////////////////////////////////////////////
 			//2. 第二指针为空，第二指针为空。
@@ -248,11 +248,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			RealResult = funAdd((char*)&tmp_Message,nullptr);
 			if (RealResult==2)
 			{
-				OutputDebug(L"Test2:2:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
+				OutputDebug("Test2:2:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
 			}
 			else
 			{
-				OutputDebug(L"Test2:2:Fault:");
+				OutputDebug("Test2:2:Fault:");
 			}
 
 			//////////////////////////////////////////////////////////////////////////
@@ -269,11 +269,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			RealResult = funAdd((char*)&tmp_Message,nullptr);
 			if (RealResult==3)
 			{
-				OutputDebug(L"Test2:3:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
+				OutputDebug("Test2:3:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
 			}
 			else
 			{
-				OutputDebug(L"Test2:3:Fault:");
+				OutputDebug("Test2:3:Fault:");
 			}
 			//////////////////////////////////////////////////////////////////////////
 			//4. 第一指针不为空-第一个指针数据有修改，第二个指针数据不为空的情况。
@@ -293,17 +293,17 @@ int _tmain(int argc, _TCHAR* argv[])
 				{
 					if (tmp_Message.firstStr[i]!=0)
 					{
-						OutputDebug(L"Test2:4:Fault:Change");
+						OutputDebug("Test2:4:Fault:Change");
 						goto hah__;
 					}
 					
 				}
-				OutputDebug(L"Test2:4:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
+				OutputDebug("Test2:4:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
 				hah__:;
 			}
 			else
 			{
-				OutputDebug(L"Test2:4:Fault:");
+				OutputDebug("Test2:4:Fault:");
 			}
 			//////////////////////////////////////////////////////////////////////////
 			//5. 第一指针不为空-第二个指针数据有修改，第二个指针数据不为空的情况。
@@ -323,17 +323,17 @@ int _tmain(int argc, _TCHAR* argv[])
 				{
 					if (tmp_Message.secondStr[i]!=0)
 					{
-						OutputDebug(L"Test2:5:Fault:Change");
+						OutputDebug("Test2:5:Fault:Change");
 						goto h__ah__;
 					}
 
 				}
-				OutputDebug(L"Test2:5:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
+				OutputDebug("Test2:5:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
 				h__ah__:;
 			}
 			else
 			{
-				OutputDebug(L"Test2:5:Fault:");
+				OutputDebug("Test2:5:Fault:");
 			}
 			//////////////////////////////////////////////////////////////////////////
 
@@ -343,7 +343,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		1. 无回调
 		*/
 		{
-			OutputDebug(L"Test3:Start:异步.无回调.\r\n");
+			OutputDebug("Test3:Start:异步.无回调.\r\n");
 
 			if (test==0)
 			{
@@ -369,7 +369,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			else
 			{
-				OutputDebug(L"Test3:Fault:");
+				OutputDebug("Test3:Fault:");
 				MessageBoxA(0,"测试3返回值错误","",MB_OK);
 			}
 			//FreeLibrary(test);
@@ -379,7 +379,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		2. 有回调：检查回调信息情况
 		*/		
 		{
-			OutputDebug(L"Test4:Start:异步.回调.\r\n");
+			OutputDebug("Test4:Start:异步.回调.\r\n");
 
 			if (test==0)
 			{
@@ -405,7 +405,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			else
 			{
-				OutputDebug(L"Test4:Fault:");
+				OutputDebug("Test4:Fault:");
 				MessageBoxA(0,"测试4返回值错误","",MB_OK);
 			}
 			//FreeLibrary(test);
@@ -423,17 +423,17 @@ void Test4Callback(const char* cp,int len)
 	char p[] = {'r','e','s','u','l','t','i','s',':','1','1','\0'};
 	if (len!=(strlen(p)+1))
 	{
-		OutputDebug(L"Test4:Fault:length");
+		OutputDebug("Test4:Fault:length");
 		return;
 	}
 	int stat = memcmp(p,cp,len);
 	if (stat==0)
 	{
-		OutputDebug(L"Test4:Pass:");
+		OutputDebug("Test4:Pass:");
 	}
 	else
 	{
-		OutputDebug(L"Test4:Fault:memcpy");
+		OutputDebug("Test4:Fault:memcpy");
 	}
 	return;
 }

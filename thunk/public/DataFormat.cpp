@@ -223,7 +223,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 
 	if (nullptr==pFlow||Flow_len<sizeof(st_data_flow))
 	{
-		OutputDebug(L"FlowToFormat:Argv look like is false");
+		OutputDebug("FlowToFormat:Argv look like is false");
 		throw(0x10);
 	}
 	const st_data_flow* pFlowBase = (st_data_flow*)pFlow;
@@ -239,7 +239,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 	*/
 	if (pFlowBase->length_of_this_struct - sizeof(st_data_flow)!= pFlowBase->length_Of_Argv_Struct)
 	{
-		OutputDebug(L"FlowToFormat:Input struct Format Error:length_Of_Argv_Struct != length_of_this_struct-sizeof(struct head)");
+		OutputDebug("FlowToFormat:Input struct Format Error:length_Of_Argv_Struct != length_of_this_struct-sizeof(struct head)");
 		throw(0x11);
 	}
 
@@ -285,7 +285,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 	}
 	else
 	{
-		OutputDebug(L"This is logic Error.");
+		OutputDebug("This is logic Error.");
 		throw("This is logic Error.");
 	}
 
@@ -298,7 +298,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 
 	if (real_argv_length!=pFlowBase->length_Of_Argv_Struct)
 	{
-		OutputDebug(L"FlowToFormat:Input struct Format Error:length_Of_Argv_Struct is UnReal");
+		OutputDebug("FlowToFormat:Input struct Format Error:length_Of_Argv_Struct is UnReal");
 		throw(0x12);
 	}
 
@@ -311,7 +311,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 	}
 	else if (format_len != Real_Format_len || pArgvCall==nullptr)
 	{
-		OutputDebug(L"input the len of format is fault.check it.You input:0x%x,calc length is:0x%x",
+		OutputDebug("input the len of format is fault.check it.You input:0x%x,calc length is:0x%x",
 			Real_Format_len,format_len);
 		throw("input the len of format is fault.");
 	}	
@@ -468,7 +468,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 			}
 			else
 			{
-				OutputDebug(L"This is logic Error.");
+				OutputDebug("This is logic Error.");
 				throw("This is logic Error.");
 			}
 

@@ -156,12 +156,12 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 	}
 	catch(char* s)
 	{
-		OutputDebug(L"Error:%s",s);
+		OutputDebug("Error:%s",s);
 		throw("");
 	}
 	catch(...)
 	{
-		OutputDebug(L"Error:Happen some error.");
+		OutputDebug("Error:Happen some error.");
 		throw("");
 	}
 

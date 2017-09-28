@@ -55,7 +55,7 @@ extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char* cb)
 {
 	if (cb!=nullptr)
 	{
-		OutputDebug(L"err:Add cb!=nullptr");
+		OutputDebug("err:Add cb!=nullptr");
 	}
 	
 	return p->firstNumber+p->secondNumber;
@@ -73,7 +73,7 @@ extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,RPC_CallB
 	}
 	else
 	{
-		OutputDebug(L"Test3:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
+		OutputDebug("Test3:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
 	}
 	/*char str[10] ={0};
 	sprintf_s(str,"%d",p->firstNumber+p->secondNumber);
@@ -95,7 +95,7 @@ extern"C" __declspec(dllexport)int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
 {
 	if (cb!=nullptr)
 	{
-		OutputDebug(L"Test3:Error:cb!=nullptr");
+		OutputDebug("Test3:Error:cb!=nullptr");
 		return -1;
 	}
 
@@ -134,7 +134,7 @@ extern"C" __declspec(dllexport)int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
 	case 4:
 		if (p->firstStr==nullptr||p->secondStr==nullptr)
 		{
-			return 4;
+			return 44;
 		}
 		else
 		{
@@ -142,12 +142,13 @@ extern"C" __declspec(dllexport)int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
 			{
 				p->firstStr[i]=0;
 			}
+			return 4;
 		}
 		break;
 	case 5:
 		if (p->firstStr==nullptr||p->secondStr==nullptr)
 		{
-			return 5;
+			return 55;
 		}
 		else
 		{
@@ -155,6 +156,7 @@ extern"C" __declspec(dllexport)int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
 			{
 				p->secondStr[i]=0;
 			}
+			return 5;
 		}
 		break;
 	default:

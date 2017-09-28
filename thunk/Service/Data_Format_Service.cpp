@@ -36,13 +36,13 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 
 	if (nullptr == p)
 	{
-		OutputDebug(L"Service_FlowToFormat_Execute:Input pointer==nullptr");
+		OutputDebug("Service_FlowToFormat_Execute:Input pointer==nullptr");
 		return -1;
 	}
 
 	if (nullptr == p->flow)
 	{
-		OutputDebug(L"Service_FlowToFormat_Execute:Input struct ponter==nullptr");
+		OutputDebug("Service_FlowToFormat_Execute:Input struct ponter==nullptr");
 		return -2;
 	}
 
@@ -50,7 +50,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 
 	if (pTmp_Flow->length_of_this_struct!=p->flow_len)
 	{
-		OutputDebug(L"Service_FlowToFormat_Execute:Input struct Format Error:flow_LEN!=length_of_this_struct");
+		OutputDebug("Service_FlowToFormat_Execute:Input struct Format Error:flow_LEN!=length_of_this_struct");
 		return -0x10;
 	}
 
@@ -85,7 +85,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 		int real_len=Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,nullptr,0,nullptr,nullptr,nullptr);
 		if (real_len==0)
 		{
-			OutputDebug(L"real_len=0?");
+			OutputDebug("real_len=0?");
 			throw("real_len=0?");
 		}
 
@@ -112,7 +112,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	}
 	catch (int errCode)//文件格式错误忽略之
 	{
-		OutputDebug(L"Flow Format Err,code:0x%x",errCode);
+		OutputDebug("Flow Format Err,code:0x%x",errCode);
 		return errCode;
 	}
 //////////////////////////////////////////////////////////////////////////
@@ -132,7 +132,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 
 	if (pFunctionName==nullptr)
 	{
-		OutputDebug(L"Service_FlowToFormat_Execute:query functionID Do'nt find Name,functionID:%d",pFlowBase->functionID);
+		OutputDebug("Service_FlowToFormat_Execute:query functionID Do'nt find Name,functionID:%d",pFlowBase->functionID);
 		return -0x21;
 	}
 	
@@ -143,7 +143,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	HMODULE hServiceDLL = LoadLibraryA(dllName);
 	if (NULL==hServiceDLL)
 	{
-		OutputDebug(L"Service_FlowToFormat_Execute:Load library fault,DLLName:%s",dllName);
+		OutputDebug("Service_FlowToFormat_Execute:Load library fault,DLLName:%s",dllName);
 		return -0x31;
 	}
 
@@ -152,7 +152,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	
 	if (nullptr == CalledFunction)
 	{
-		OutputDebug(L"Service_FlowToFormat_Execute:GetProcAddress fault,DLLName:%s,functionName:%s",dllName,pFunctionName);
+		OutputDebug("Service_FlowToFormat_Execute:GetProcAddress fault,DLLName:%s,functionName:%s",dllName,pFunctionName);
 		delete(pFunctionName);
 		pFunctionName = nullptr;
 		return -0x41;
@@ -211,7 +211,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 
 			if ((pFlowBase->number_Of_Argv_Pointer!=0)&&(pSecondCopyArgv==nullptr))
 			{
-				OutputDebug(L"Service_FlowToFormat_Execute:Error:Unexpected logic.");
+				OutputDebug("Service_FlowToFormat_Execute:Error:Unexpected logic.");
 				throw("Service_FlowToFormat_Execute:Error:Unexpected logic.");
 			}
 
@@ -230,7 +230,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 					;}
 				catch(...)
 				{
-					OutputDebug(L"Service_FlowToFormat_Execute:Error:Unexpected:\
+					OutputDebug("Service_FlowToFormat_Execute:Error:Unexpected:\
 								 queue_memory_manage's number is Incorrect is 0x%x,\
 								 true number is:0x%x",i,pFlowBase->number_Of_Argv_Pointer);
 					throw("Service_FlowToFormat_Execute:Error:Unexpected:\
@@ -244,7 +244,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 
 				if (!((p_new_data!=nullptr&&p_old_data!=nullptr&&data_len!=0)||(p_new_data==nullptr&&p_old_data==nullptr&&data_len==0)))
 				{
-					OutputDebug(L"Service_FlowToFormat_Execute:Error:Unexpected value,\
+					OutputDebug("Service_FlowToFormat_Execute:Error:Unexpected value,\
 								 p_new_data:0x%x;p_old_data:0x%x;data_len:0x%x.",p_new_data,p_old_data,data_len);
 					throw("Service_FlowToFormat_Execute:Error:Unexpected value.");
 				}
@@ -269,7 +269,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 				try{queue_memory_manage->push(tmp_queue->pop());}
 				catch(...)
 				{
-					OutputDebug(L"Service_FlowToFormat_Execute:Error:Unexpected2:\
+					OutputDebug("Service_FlowToFormat_Execute:Error:Unexpected2:\
 								 queue_memory_manage's number is Incorrect is 0x%x,\
 								 true number is:0x%x",i,pFlowBase->number_Of_Argv_Pointer);
 					throw("Service_FlowToFormat_Execute:Error:Unexpected:\
@@ -293,7 +293,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 		}
 		else
 		{
-			OutputDebug(L"Service_FlowToFormat_Execute:Input struct Value Error:argvTypeOption value is unexpected");
+			OutputDebug("Service_FlowToFormat_Execute:Input struct Value Error:argvTypeOption value is unexpected");
 			return -23;
 		}
 		/*

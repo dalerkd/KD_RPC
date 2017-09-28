@@ -37,13 +37,13 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 
 	if (nullptr == p)
 	{
-		OutputDebug(L"Client_FlowToFormat_Execute:Input pointer==nullptr");
+		OutputDebug("Client_FlowToFormat_Execute:Input pointer==nullptr");
 		return -1;
 	}
 
 	if (nullptr == p->flow)
 	{
-		OutputDebug(L"Client_FlowToFormat_Execute:Input struct ponter==nullptr");
+		OutputDebug("Client_FlowToFormat_Execute:Input struct ponter==nullptr");
 		return -2;
 	}
 
@@ -51,7 +51,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 
 	if (pTmp_Flow->length_of_this_struct!=p->flow_len)
 	{
-		OutputDebug(L"Client_FlowToFormat_Execute:Input struct Format Error:flow_LEN!=length_of_this_struct");
+		OutputDebug("Client_FlowToFormat_Execute:Input struct Format Error:flow_LEN!=length_of_this_struct");
 		return -0x10;
 	}
 
@@ -100,7 +100,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 	}
 	catch (int errCode)//文件格式错误忽略之
 	{
-		OutputDebug(L"Flow Format Err,code:0x%x",errCode);
+		OutputDebug("Flow Format Err,code:0x%x",errCode);
 		return errCode;
 	}
 	//////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 			const int AsyncArgvLimit = 1;
 			if (AsyncArgvLimit!=pFlowBase->number_Of_Argv_Pointer)
 			{
-				OutputDebug(L"Warming:ID_proc:0x%x in async,\
+				OutputDebug("Warming:ID_proc:0x%x in async,\
 					number_Of_Argv_Pointer number fault is 0x%d.",pFlowBase->number_Of_Argv_Pointer);
 			}
 			FARPROC m_callback;
@@ -143,7 +143,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 			}
 			catch(...)
 			{
-				OutputDebug(L"Client Call_Back happen Exception.Ignoring...");
+				OutputDebug("Client Call_Back happen Exception.Ignoring...");
 			}
 
 
@@ -159,7 +159,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 			
 			if (PointerNumber!=pFlowBase->number_Of_Argv_Pointer)
 			{
-				OutputDebug(L"Client_FlowToFormat_Execute:PointerNumber!=pFlowBase->number_Of_Argv_Pointer");
+				OutputDebug("Client_FlowToFormat_Execute:PointerNumber!=pFlowBase->number_Of_Argv_Pointer");
 				goto Recive_Data_Client_End;
 			}
 			//Format 将结果上去
@@ -170,7 +170,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 				char* pNewData = (char*)*(int*)(pArgvCall+offset);
 				if (pNewData!=nullptr&&pOldData==nullptr)
 				{
-					OutputDebug(L"Client_FlowToFormat_Execute:Data Format Error,Old Pointer=0,New Pointer!=0,return.");
+					OutputDebug("Client_FlowToFormat_Execute:Data Format Error,Old Pointer=0,New Pointer!=0,return.");
 					goto Recive_Data_Client_End;
 				}
 
@@ -178,7 +178,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 				{
 					if (0!=*(int*)(pArgvCall+offset+sizeof(int)))
 					{
-						OutputDebug(L"Client_FlowToFormat_Execute:Data Format Error,New Pointer=nullptr,Pointer_len!=0,return.");
+						OutputDebug("Client_FlowToFormat_Execute:Data Format Error,New Pointer=nullptr,Pointer_len!=0,return.");
 						goto Recive_Data_Client_End;
 					}
 					else
@@ -194,11 +194,11 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 					}
 					else if (STANDARD_FLOW_MODE == pFlowBase->work_type)
 					{
-						OutputDebug(L"Client_FlowToFormat_Execute:Format err:STANDARD_FLOW_MODE like QUICK_FLOW_MODE?");
+						OutputDebug("Client_FlowToFormat_Execute:Format err:STANDARD_FLOW_MODE like QUICK_FLOW_MODE?");
 					}
 					else
 					{
-						OutputDebug(L"Client_FlowToFormat_Execute:unexpected work_type:0x%x",pFlowBase->work_type);
+						OutputDebug("Client_FlowToFormat_Execute:unexpected work_type:0x%x",pFlowBase->work_type);
 					}
 					goto Recive_Data_Client_End;
 					
@@ -208,7 +208,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 					//检查长度一致的情况
 					if(*(int*)(pFormat+offset+sizeof(int))!=*(int*)(pArgvCall+offset+sizeof(int)))
 					{
-						OutputDebug(L"Client_FlowToFormat_Execute:New Data and Old Data len differ.");
+						OutputDebug("Client_FlowToFormat_Execute:New Data and Old Data len differ.");
 						goto Recive_Data_Client_End;
 					}
 					else
@@ -229,7 +229,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 			*p_ret_to_wait_sync_value = pFlowBase->return_value;
 			if(0==SetEvent(hdEvent))
 			{
-				OutputDebug(L"Client_FlowToFormat_Execute:SetEvent invalid");
+				OutputDebug("Client_FlowToFormat_Execute:SetEvent invalid");
 				goto Recive_Data_Client_End;
 			}
 
@@ -239,7 +239,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 	catch(...)
 	{
 		//该ID_proc在对应序列找不到
-		OutputDebug(L"Warming:ID_proc:0x%x in async:%s,do'nt find record.",m_ID_proc,bAsync?"True":"False");
+		OutputDebug("Warming:ID_proc:0x%x in async:%s,do'nt find record.",m_ID_proc,bAsync?"True":"False");
 		goto Recive_Data_Client_End;
 	}
 
