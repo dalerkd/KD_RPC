@@ -4,6 +4,7 @@
 #include "../Client/stdafx.h"
 
 #include <tchar.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "Debug.h"
 
@@ -21,7 +22,20 @@ VOID OutputDebug(LPWSTR strFormat, ...)
 	LPWSTR strDebug = (LPWSTR) malloc((MAX_DEBUG_STRING + 2) * sizeof(WCHAR)); // do not use zalloc here
 	SecureZeroMemory(strDebug, (MAX_DEBUG_STRING + 2) * sizeof(WCHAR));
 	vswprintf_s(strDebug, MAX_DEBUG_STRING, strFormat, vArgs);
-	OutputDebugString(strDebug);
+	OutputDebugStringW(strDebug);
+
+	free(strDebug);
+}
+
+VOID OutputDebug(LPSTR strFormat, ...)
+{
+	va_list vArgs;
+
+	va_start(vArgs, strFormat);
+	LPSTR strDebug = (LPSTR) malloc((MAX_DEBUG_STRING + 2) * sizeof(CHAR)); // do not use zalloc here
+	SecureZeroMemory(strDebug, (MAX_DEBUG_STRING + 2) * sizeof(CHAR));
+	vsprintf_s(strDebug, MAX_DEBUG_STRING, strFormat, vArgs);
+	OutputDebugStringA(strDebug);
 
 	free(strDebug);
 }

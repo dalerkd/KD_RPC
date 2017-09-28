@@ -245,7 +245,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 			
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
+			RealResult = funAdd((char*)&tmp_Message,nullptr);
 			if (RealResult==2)
 			{
 				OutputDebug(L"Test2:2:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
@@ -266,7 +266,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
+			RealResult = funAdd((char*)&tmp_Message,nullptr);
 			if (RealResult==3)
 			{
 				OutputDebug(L"Test2:3:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
@@ -286,7 +286,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
+			RealResult = funAdd((char*)&tmp_Message,nullptr);
 			if (RealResult==4)
 			{
 				for (int i=0;i<tmp_Message.firstStr_len;++i)
@@ -299,7 +299,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					
 				}
 				OutputDebug(L"Test2:4:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-				hah__:
+				hah__:;
 			}
 			else
 			{
@@ -316,7 +316,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
+			RealResult = funAdd((char*)&tmp_Message,nullptr);
 			if (RealResult==5)
 			{
 				for (int i=0;i<tmp_Message.secondStr_len;++i)
@@ -329,7 +329,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 				}
 				OutputDebug(L"Test2:5:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-				h__ah__:
+				h__ah__:;
 			}
 			else
 			{
