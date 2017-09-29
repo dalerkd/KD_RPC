@@ -80,6 +80,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	CSafeQueueAutoPointerManage* queue_memory_manage = nullptr;
 	CSafeQueueAutoPointerManage* queue_memory_copy	 = nullptr;
 	const bool bAsync = pFlowBase->async;
+	
 	try
 	{
 		int real_len=Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,nullptr,0,nullptr,nullptr,nullptr);
@@ -90,13 +91,12 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 		}
 
 		
-		//堆烂了
 		pArgvCall = new char[real_len]();
 
 
 
 		queue_memory_manage = new CSafeQueueAutoPointerManage();
-		if (false == bAsync&& RECV_INFO==pFlowBase->work_type)
+		if (false == bAsync&&true)//就是这么奇怪。。。
 		{
 			pSecondCopyArgv = new char[real_len]();
 			queue_memory_copy = new CSafeQueueAutoPointerManage();
@@ -254,8 +254,12 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 					int ret = memcmp(p_old_data,p_new_data,data_len);
 					if (0==ret)//无改动
 					{
-						delete(p_old_data);
-						(*(int*)(pSecondCopyArgv+offset)) = 0;//指针
+						(*(int*)(pSecondCopyArgv+(offset-sizeof(int)))) = 0;//指向数据的指针设为nullptr
+						(*(int*)(pSecondCopyArgv+offset)) = 0;				//长度也必须为0.！！
+					}
+					else
+					{
+						(*(int*)(pSecondCopyArgv+(offset-sizeof(int)))) = (int)p_new_data;//有改动时，使用新数据
 					}
 				}
 

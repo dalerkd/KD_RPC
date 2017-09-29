@@ -213,8 +213,10 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 					}
 					else
 					{
-						int len = *(int*)(pFormat+offset+sizeof(int));
+						int len = *(int*)(pFormat+offset+sizeof(int));//会出问题
+
 						int stat = memcpy_s(pOldData,len,pNewData,len);
+						
 						if (stat)
 						{
 							throw("memcpy_s p_format_end_data return err.");

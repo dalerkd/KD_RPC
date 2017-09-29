@@ -35,7 +35,7 @@ public:
 	*/
 	void push(LONG ID_proc,int* ret,char* pFormat,int PointerNumber,HANDLE hdEvent);
 
-	int* findAndPop(LONG ID_proc,char* pFormat,int& PointerNumber,HANDLE& hdEvent);
+	int* findAndPop(LONG ID_proc,char*& pFormat,int& PointerNumber,HANDLE& hdEvent);
 private:
 	CSafeMap<LONG,st_CYSM>* m_safemap;
 };

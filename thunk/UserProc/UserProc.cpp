@@ -100,6 +100,24 @@ void WeatherCallBack(const char*,int len);
 
 */
 
+/*
+用前需知
+
+1. 在客户端中调用以下析构函数前，不要直接使用FreeLibrary(test)。
+
+
+CFunctionInfo* g_CI_Client;	//客户端 接口信息管理		,不处理会引起内存泄漏
+CAsyncStateManage* g_pasm;	//客户端 异步状态管理		,不处理会引起内存泄漏
+CSyncStateManage* g_pssm;	//客户端 同步状态管理		,不处理会引起内存泄漏
+CWEB* pCWEB;				//客户端 网络管理收发线程	,不处理会引起线程问题和内存问题
+
+2. 建议将网络模块替换成你自己的高速模块。我为了方便使用了MailSlot网络这种天底下最慢的网络模块。
+
+*/
+
+
+
+
 void Test4Callback(const char* cp,int len);
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -198,18 +216,19 @@ int _tmain(int argc, _TCHAR* argv[])
 		*/
 
 		{
-			OutputDebug("Test2:Start:无指针参数:检查返回值.\r\n");
+			OutputDebug("Test2:Start:有指针参数:检查返回值.\r\n");
 
 
 			if (test==0)
 			{
 				MessageBoxA(0,"不存在dll","",MB_OK);
+				return -1;
 			}
 			FARPROC fpAdd = GetProcAddress(test,"Test2_Sync");		//导入算术测试
 			if (fpAdd==nullptr)
 			{
 				MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
-
+				return -2;
 			}
 
 
@@ -233,6 +252,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			else
 			{
 				OutputDebug("Test2:1:Fault:");
+				system("pause");
 			}
 			//////////////////////////////////////////////////////////////////////////
 			//2. 第二指针为空，第二指针为空。
@@ -253,6 +273,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			else
 			{
 				OutputDebug("Test2:2:Fault:");
+				system("pause");
 			}
 
 			//////////////////////////////////////////////////////////////////////////
@@ -274,16 +295,26 @@ int _tmain(int argc, _TCHAR* argv[])
 			else
 			{
 				OutputDebug("Test2:3:Fault:");
+				system("pause");
 			}
 			//////////////////////////////////////////////////////////////////////////
 			//4. 第一指针不为空-第一个指针数据有修改，第二个指针数据不为空的情况。
-			tmp_Message.firstStr = "FirstStr";
+			
+			//修改你得给个能修改的量
+			char* pf4= new char[0x10]();
+			char* tpFirstStr = "FirstStr";
+
+			for (int i=0;i<0x10;++i)
+			{
+				pf4[i] = tpFirstStr[i];
+			}
+			tmp_Message.firstStr = pf4;
 			tmp_Message.firstStr_len = strlen(tmp_Message.firstStr)+1;
 			tmp_Message.secondStr= "SecondStr";
 			tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
 			tmp_Message.other_argv_c = 4;
 			tmp_Message.f_f = 4.4;
-
+			
 
 
 			RealResult = funAdd((char*)&tmp_Message,nullptr);
@@ -294,22 +325,37 @@ int _tmain(int argc, _TCHAR* argv[])
 					if (tmp_Message.firstStr[i]!=0)
 					{
 						OutputDebug("Test2:4:Fault:Change");
+						system("pause");
 						goto hah__;
 					}
 					
 				}
 				OutputDebug("Test2:4:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-				hah__:;
+hah__:;
+				
 			}
 			else
 			{
 				OutputDebug("Test2:4:Fault:");
+				system("pause");
 			}
+			delete(pf4);
+			pf4 = nullptr;
+
 			//////////////////////////////////////////////////////////////////////////
 			//5. 第一指针不为空-第二个指针数据有修改，第二个指针数据不为空的情况。
+			//修改你得给个能修改的量
+			
 			tmp_Message.firstStr = "FirstStr";
 			tmp_Message.firstStr_len = strlen(tmp_Message.firstStr)+1;
-			tmp_Message.secondStr= "SecondStr";
+			char* ps5 =  new char[0x10]();
+			char* tpStr = "SecondStr";
+			
+			for (int i=0;i<0x10;++i)
+			{
+				ps5[i] = tpStr[i];
+			}
+			tmp_Message.secondStr= ps5;
 			tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
 			tmp_Message.other_argv_c = 5;
 			tmp_Message.f_f = 5.5;
@@ -324,19 +370,23 @@ int _tmain(int argc, _TCHAR* argv[])
 					if (tmp_Message.secondStr[i]!=0)
 					{
 						OutputDebug("Test2:5:Fault:Change");
+						system("pause");
 						goto h__ah__;
 					}
 
 				}
-				OutputDebug("Test2:5:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
+				OutputDebug("Test2:5:Pass:.\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
 				h__ah__:;
 			}
 			else
 			{
 				OutputDebug("Test2:5:Fault:");
+				system("pause");
 			}
+			delete(ps5);
+			ps5 = nullptr;
 			//////////////////////////////////////////////////////////////////////////
-
+			
 		}
 		/*
 		- 异步：
@@ -408,7 +458,17 @@ int _tmain(int argc, _TCHAR* argv[])
 				OutputDebug("Test4:Fault:");
 				MessageBoxA(0,"测试4返回值错误","",MB_OK);
 			}
-			//FreeLibrary(test);
+			/*
+			在客户端中调用以下析构函数前，不要直接使用FreeLibrary(test)。
+			
+
+			CFunctionInfo* g_CI_Client;	//客户端 接口信息管理		,不处理会引起内存泄漏
+			CAsyncStateManage* g_pasm;	//客户端 异步状态管理		,不处理会引起内存泄漏
+			CSyncStateManage* g_pssm;	//客户端 同步状态管理		,不处理会引起内存泄漏
+			CWEB* pCWEB;				//客户端 网络管理收发线程	,不处理会引起线程问题和内存问题
+			
+			
+			*/
 			
 		}
 
@@ -429,7 +489,8 @@ void Test4Callback(const char* cp,int len)
 	int stat = memcmp(p,cp,len);
 	if (stat==0)
 	{
-		OutputDebug("Test4:Pass:");
+		OutputDebug("Test4:Pass:\r\n");
+		OutputDebug("All pass.:)恭喜.");
 	}
 	else
 	{

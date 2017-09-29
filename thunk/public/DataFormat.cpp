@@ -73,8 +73,12 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 		for (int i=0;i<ArgvPointerNumber;++i)
 		{
 			int* tmp;
-			tmp = ptmp+(i+1);
-			m_real_length+=*tmp;
+			if (nullptr!=(char*)*(ptmp+(i*2)))//数据指针为空，则不计算长度，用于快速模式。
+			{
+				tmp = ptmp+(i*2+1);//数据长度
+				m_real_length+=*tmp;
+			}
+			
 		}
 	}
 
@@ -120,13 +124,13 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 	{
 		int* ptmp_length;
 		int* ptmp_pointer;
-		ptmp_pointer= pBase+i;
-		ptmp_length	= pBase+(i+1);
+		ptmp_pointer= pBase+2*i;
+		ptmp_length	= pBase+(2*i+1);
 
 		//check
 		if (nullptr == (char*)*ptmp_pointer&&0!=*ptmp_length)
 		{
-			throw("Format2Flow:This argv pointer==nullptr,but length call me !=0");
+			;//说明正在进行快速传递模式
 		}
 		//copy
 		int* plength = (int*)(psdf->argv_Struct+offset);
@@ -134,15 +138,30 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 		*plength = *ptmp_length;
 
 		offset += sizeof(int);
-		int stat = memcpy_s(psdf->argv_Struct+offset,*ptmp_length,(char*)*ptmp_pointer,*ptmp_length);
-		if (stat)
+
+		if (nullptr != (char*)*ptmp_pointer)//当指针不为空时，长度必须不为0
 		{
-			throw("memcpy_s return err.");
+			if (*ptmp_length==0)
+			{
+				throw("Format2Flow:This argv pointer!=nullptr,but length call me ==0");
+			}
+			int stat = memcpy_s(psdf->argv_Struct+offset,*ptmp_length,(char*)*ptmp_pointer,*ptmp_length);
+			if (stat)
+			{
+				throw("memcpy_s return err.");
+			}
+
+			offset+=*ptmp_length;
+
+			tmp_length+=*ptmp_length;
+		}
+		else//快速传输模式,不复制不关心长度
+		{
+			offset+=0;
+			tmp_length+=0;
 		}
 
-		offset+=*ptmp_length;
-
-		tmp_length+=*ptmp_length;
+		
 	}
 
 	//指针数据在流中所占总长度=指针数据的长度和+长度标记信息所占位置
@@ -379,7 +398,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 					{
 						queue_memory_manage->push(pPointerData);
 					}
-					
+
 					//用户数据在flow中的指针
 					char* pointer_data =(char*)(argv_Base+argv_flow_offset+1*sizeof(int));//+数据长度的位置，数据在长度后面
 
@@ -448,9 +467,9 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 				argv_flow_offset += +sizeof(int)+m_pointer_len;
 			}//-for-end
 
-		//////////////////////////////////////////////////////////////////////////
+			//////////////////////////////////////////////////////////////////////////
 			//最后的非指针参数的长度
-		
+
 			int other_Length = 0;
 			int tmp_argv_length =pFlowBase->length_Of_Argv_Struct;
 			/*
@@ -491,7 +510,7 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 			//如果是同步函数，后面的非指针参数也要备份一下。
 			if (nullptr!=pSecondCopyArgv/*false == bAsync&& RECV_INFO==pFlowBase->work_type*/)
 			{
-				char* p_format_end_data_copy = pSecondCopyArgv + argv_flow_offset;
+				char* p_format_end_data_copy = pSecondCopyArgv + argv_format_offset;
 
 				if (other_Length!=0)
 				{

@@ -29,7 +29,7 @@ void CSyncStateManage::push(LONG ID_proc,int* ret,char* pFormat,int PointerNumbe
 	return;
 }
 
-int* CSyncStateManage::findAndPop(LONG ID_proc,char* pFormat,int& PointerNumber,HANDLE& hdEvent)
+int* CSyncStateManage::findAndPop(LONG ID_proc,char*& pFormat,int& PointerNumber,HANDLE& hdEvent)
 {
 	st_CYSM tmp = m_safemap->pop(ID_proc);
 
