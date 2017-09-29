@@ -1,66 +1,66 @@
+ï»¿
+
+## é¡¹ç›®ä»‹ç»ï¼š
+ä¸»é¡µ:http://github.com/dalerkd/KD_RPC
+
+æœ¬é¡¹ç›®å¼€å§‹äºŽ2017å¹´9æœˆ8æ—¥
+å…¨éƒ¨æµ‹è¯•é€šè¿‡äºŽ2017å¹´9æœˆ29æ—¥æ˜ŸæœŸäº” 20:06
+
+## åŠŸèƒ½
+æ”¯æŒåŒæ­¥ï¼Œå¼‚æ­¥è°ƒç”¨ã€‚
+æ”¯æŒæŒ‡é’ˆæ•°æ®ä¼ è¾“ï¼Œè¾ƒå¤§é™åº¦çš„æä¾›ç¬¦åˆCè¯­è¨€æœ¬åœ°è°ƒç”¨çš„ç½‘ç»œè°ƒç”¨ä½“éªŒã€‚
+
+æœªæ¥æ”¯æŒï¼šåŠ¨æ€ä¿®æ”¹ç«¯å£ã€‚ä½†è¯´å®žè¯ï¼Œæˆ‘è§‰å¾—è¿™æ ·åšçš„æ„ä¹‰ä¸€èˆ¬ã€‚
 
 
-## ÏîÄ¿½éÉÜ£º
-Ö÷Ò³:http://github.com/dalerkd/KD-RPC
 
-±¾ÏîÄ¿¿ªÊ¼ÓÚ2017Äê9ÔÂ8ÈÕ
-È«²¿²âÊÔÍ¨¹ýÓÚ2017Äê9ÔÂ29ÈÕÐÇÆÚÎå 20:06
-
-## ¹¦ÄÜ
-Ö§³ÖÍ¬²½£¬Òì²½µ÷ÓÃ¡£
-Ö§³ÖÖ¸ÕëÊý¾Ý´«Êä£¬½Ï´óÏÞ¶ÈµÄÌá¹©·ûºÏCÓïÑÔ±¾µØµ÷ÓÃµÄÍøÂçµ÷ÓÃÌåÑé¡£
-
-Î´À´Ö§³Ö£º¶¯Ì¬ÐÞ¸Ä¶Ë¿Ú¡£µ«ËµÊµ»°£¬ÎÒ¾õµÃÕâÑù×öµÄÒâÒåÒ»°ã¡£
-
-
-
-## ¹¤³Ì
-Ò»¹²Æß¸ö×Ó¹¤³Ì£º
+## å·¥ç¨‹
+ä¸€å…±ä¸ƒä¸ªå­å·¥ç¨‹ï¼š
 - Client
-¿Í»§¶Ë´úÀí³ÌÐò
+å®¢æˆ·ç«¯ä»£ç†ç¨‹åº
 - KDRPC
-Éè¼ÆÇ°ÆÚ·½°¸ÎÄ±¾¡£
+è®¾è®¡å‰æœŸæ–¹æ¡ˆæ–‡æœ¬ã€‚
 - Service
-·þÎñ¶Ë´úÀí³ÌÐò
+æœåŠ¡ç«¯ä»£ç†ç¨‹åº
 - ServiceDLL
-·þÎñÆ÷ÉÏ¹¤×÷µÄÓÃ»§Ä£¿é
+æœåŠ¡å™¨ä¸Šå·¥ä½œçš„ç”¨æˆ·æ¨¡å—
 - testEverythin
-ÎÞÓÃ£¬ÕâÊÇÎÒÓÃÀ´²âÊÔ¸÷ÖÖÐ¡¼¼ÊõµÄ¡£
+æ— ç”¨ï¼Œè¿™æ˜¯æˆ‘ç”¨æ¥æµ‹è¯•å„ç§å°æŠ€æœ¯çš„ã€‚
 - UserProc
-ÓÃ»§³ÌÐò
+ç”¨æˆ·ç¨‹åº
 - WEB
-ÎÞÓÃ£¬Éè¼ÆÊ±£¬ÓÃÀ´²âÊÔMailSlot¡£
+æ— ç”¨ï¼Œè®¾è®¡æ—¶ï¼Œç”¨æ¥æµ‹è¯•MailSlotã€‚
 
 
-UserProc->Client->......ÍøÂç......->Service->ServiceDLL
+UserProc->Client->......ç½‘ç»œ......->Service->ServiceDLL
 
 
-ÎÒÒÑ¾­Ìí¼ÓÁË8ÖÖÇé¿öµÄ²âÊÔÓÃÀý¡£º­¸ÇÁË¾ø´ó¶àÊýÌá¹©·þÎñµÄÇé¿ö¡£Ö±½Ó±àÒëÖ´ÐÐServicºóÖ´ÐÐUserProc¼´¿É²âÊÔ.
-
-
-
-
-
-## Ìí¼Ó¿ò¼Üº¯ÊýµÄ²½Öè£º
-1. °´ÕÕ¹æ·¶Ìí¼Ó·þÎñÆ÷µ¼³öº¯Êý
-2. Ìí¼Ó±¾µØµ÷ÓÃº¯Êý
-
-3. Ìí¼ÓClientº¯Êý×¢²á´úÂë
-4. Ìí¼ÓServiceº¯Êý×¢²á´úÂë
+æˆ‘å·²ç»æ·»åŠ äº†8ç§æƒ…å†µçš„æµ‹è¯•ç”¨ä¾‹ã€‚æ¶µç›–äº†ç»å¤§å¤šæ•°æä¾›æœåŠ¡çš„æƒ…å†µã€‚ç›´æŽ¥ç¼–è¯‘æ‰§è¡ŒServicåŽæ‰§è¡ŒUserProcå³å¯æµ‹è¯•.
 
 
 
 
 
-## ÓÃÇ°ÐèÖª
+## æ·»åŠ æ¡†æž¶å‡½æ•°çš„æ­¥éª¤ï¼š
+1. æŒ‰ç…§è§„èŒƒæ·»åŠ æœåŠ¡å™¨å¯¼å‡ºå‡½æ•°
+2. æ·»åŠ æœ¬åœ°è°ƒç”¨å‡½æ•°
 
-1. ÔÚ¿Í»§¶ËÖÐµ÷ÓÃÒÔÏÂÎö¹¹º¯ÊýÇ°£¬²»ÒªÖ±½ÓÊ¹ÓÃFreeLibrary(test)¡£
+3. æ·»åŠ Clientå‡½æ•°æ³¨å†Œä»£ç 
+4. æ·»åŠ Serviceå‡½æ•°æ³¨å†Œä»£ç 
 
 
-CFunctionInfo* g_CI_Client;	//¿Í»§¶Ë ½Ó¿ÚÐÅÏ¢¹ÜÀí		,²»´¦Àí»áÒýÆðÄÚ´æÐ¹Â©
-CAsyncStateManage* g_pasm;	//¿Í»§¶Ë Òì²½×´Ì¬¹ÜÀí		,²»´¦Àí»áÒýÆðÄÚ´æÐ¹Â©
-CSyncStateManage* g_pssm;	//¿Í»§¶Ë Í¬²½×´Ì¬¹ÜÀí		,²»´¦Àí»áÒýÆðÄÚ´æÐ¹Â©
-CWEB* pCWEB;				//¿Í»§¶Ë ÍøÂç¹ÜÀíÊÕ·¢Ïß³Ì	,²»´¦Àí»áÒýÆðÏß³ÌÎÊÌâºÍÄÚ´æÎÊÌâ
 
-2. ½¨Òé½«ÍøÂçÄ£¿éÌæ»»³ÉÄã×Ô¼ºµÄ¸ßËÙÄ£¿é¡£ÒòÎªÎÒÎªÁË·½±ãÊ¹ÓÃÁËMailSlotÍøÂçÕâÖÖÌìµ×ÏÂ×îÂýµÄÍøÂçÄ£¿é¡£
+
+
+## ç”¨å‰éœ€çŸ¥
+
+1. åœ¨å®¢æˆ·ç«¯ä¸­è°ƒç”¨ä»¥ä¸‹æžæž„å‡½æ•°å‰ï¼Œä¸è¦ç›´æŽ¥ä½¿ç”¨FreeLibrary(test)ã€‚
+
+
+CFunctionInfo* g_CI_Client;	//å®¢æˆ·ç«¯ æŽ¥å£ä¿¡æ¯ç®¡ç†		,ä¸å¤„ç†ä¼šå¼•èµ·å†…å­˜æ³„æ¼
+CAsyncStateManage* g_pasm;	//å®¢æˆ·ç«¯ å¼‚æ­¥çŠ¶æ€ç®¡ç†		,ä¸å¤„ç†ä¼šå¼•èµ·å†…å­˜æ³„æ¼
+CSyncStateManage* g_pssm;	//å®¢æˆ·ç«¯ åŒæ­¥çŠ¶æ€ç®¡ç†		,ä¸å¤„ç†ä¼šå¼•èµ·å†…å­˜æ³„æ¼
+CWEB* pCWEB;				//å®¢æˆ·ç«¯ ç½‘ç»œç®¡ç†æ”¶å‘çº¿ç¨‹	,ä¸å¤„ç†ä¼šå¼•èµ·çº¿ç¨‹é—®é¢˜å’Œå†…å­˜é—®é¢˜
+
+2. å»ºè®®å°†ç½‘ç»œæ¨¡å—æ›¿æ¢æˆä½ è‡ªå·±çš„é«˜é€Ÿæ¨¡å—ã€‚å› ä¸ºæˆ‘ä¸ºäº†æ–¹ä¾¿ä½¿ç”¨äº†MailSlotç½‘ç»œè¿™ç§å¤©åº•ä¸‹æœ€æ…¢çš„ç½‘ç»œæ¨¡å—ã€‚
 
