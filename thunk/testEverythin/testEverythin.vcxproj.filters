@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="public">
-      <UniqueIdentifier>{2999b2eb-806e-4e3c-a164-d026e3f8fff3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -27,12 +24,6 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SafeQueue.h">
-      <Filter>源文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\debug.h">
-      <Filter>public</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -40,12 +31,6 @@
     </ClCompile>
     <ClCompile Include="testEverythin.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="SafeQueue.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\debug.cpp">
-      <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

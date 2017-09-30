@@ -187,7 +187,11 @@ extern"C" __declspec(dllexport)int Test2_Sync(PVOID pStruct,FARPROC callBack)
 	return Core(m_SN,pStruct,callBack);
 }
 
-
+extern"C" __declspec(dllexport)int RealMessageBoxA(PVOID pStruct,FARPROC callBack)
+{
+	int m_SN = 4;
+	return Core(m_SN,pStruct,callBack);
+}
 
 
 

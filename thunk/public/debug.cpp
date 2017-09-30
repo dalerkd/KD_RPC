@@ -35,6 +35,7 @@ VOID OutputDebug(LPSTR strFormat, ...)
 	LPSTR strDebug = (LPSTR) malloc((MAX_DEBUG_STRING + 2) * sizeof(CHAR)); // do not use zalloc here
 	SecureZeroMemory(strDebug, (MAX_DEBUG_STRING + 2) * sizeof(CHAR));
 	vsprintf_s(strDebug, MAX_DEBUG_STRING, strFormat, vArgs);
+	printf(strDebug);
 	OutputDebugStringA(strDebug);
 
 	free(strDebug);

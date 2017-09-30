@@ -51,38 +51,11 @@ typedef  int (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
 #include <windows.h>
 #include <stdio.h>
 //测试1： 同步，无指针，返回值
-extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char* cb)
-{
-	if (cb!=nullptr)
-	{
-		OutputDebug("err:Add cb!=nullptr");
-	}
-	
-	return p->firstNumber+p->secondNumber;
-
-}
+extern"C" __declspec(dllexport)int Add(st_argv_Add* p,char* cb);
 
 
 //测试3： 异步，无指针，无回调
-extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,RPC_CallBack cb)
-{
-	if (cb!=nullptr)
-	{
-		char str[]={'r','e','s','u','l','t','i','s',':','1','1','\0'};
-		cb(str,strlen(str)+1);
-	}
-	else
-	{
-		OutputDebug("Test3:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-	}
-	/*char str[10] ={0};
-	sprintf_s(str,"%d",p->firstNumber+p->secondNumber);
-	MessageBoxA(0,str,"Result is",MB_OK);
-	*/
-
-	return 0;
-
-}
+extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,RPC_CallBack cb);
 ////测试2 同步，各种情况,other_argv_c决定
 /*  1. 第一指针为空，第二指针不为空。
 	2. 第一指针为空，第二指针为空。
@@ -91,128 +64,32 @@ extern"C" __declspec(dllexport)int Add_Async_NoCallback(st_argv_Add* p,RPC_CallB
 	5. 第一指针不为空-第二个指针数据有修改，第二个指针数据不为空的情况。
 */
 
-extern"C" __declspec(dllexport)int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
-{
-	if (cb!=nullptr)
-	{
-		OutputDebug("Test3:Error:cb!=nullptr");
-		return -1;
-	}
-
-	switch (p->other_argv_c)
-	{
-	case 1:
-		if (p->firstStr!=nullptr||p->secondStr==nullptr)
-		{
-			return 11;
-		}
-		else
-		{
-			return 1;
-		}
-		break;
-	case 2:
-		if (p->firstStr!=nullptr||p->secondStr!=nullptr)
-		{
-			return 22;
-		}
-		else
-		{
-			return 2;
-		}
-		break;
-	case 3:
-		if (p->firstStr==nullptr||p->secondStr!=nullptr)
-		{
-			return 33;
-		}
-		else
-		{
-			return 3;
-		}
-		break;
-	case 4:
-		if (p->firstStr==nullptr||p->secondStr==nullptr)
-		{
-			return 44;
-		}
-		else
-		{
-			for (int i=0;i<p->firstStr_len;++i)
-			{
-				p->firstStr[i]=0;
-			}
-			return 4;
-		}
-		break;
-	case 5:
-		if (p->firstStr==nullptr||p->secondStr==nullptr)
-		{
-			return 55;
-		}
-		else
-		{
-			for (int i=0;i<p->secondStr_len;++i)
-			{
-				p->secondStr[i]=0;
-			}
-			return 5;
-		}
-		break;
-	default:
-		return 99;
-		break;
-	}
-
-
-}
+extern"C" __declspec(dllexport)int Test2_Sync(st_argv_test2* p,RPC_CallBack cb);
 
 //////////////////////////////////////////////////////////////////////////
 
-//MessageBoxA(0,"","",MB_OK)
 //MessageBoxA(_In_opt_ HWND hWnd, _In_opt_ LPCSTR lpText, _In_opt_ LPCSTR lpCaption, _In_ UINT uType)
-struct st_argv 
+struct st_argv_MessageBoxA 
 {
-	_In_opt_ HWND hWnd;
 	_In_opt_ LPCSTR lpText;
 	int lpText_len;
 	_In_opt_ LPCSTR lpCaption;
 	int lpCaption_len;
+
+	_In_opt_ HWND hWnd;
 	_In_ UINT uType;
 
 };
 
-extern"C" __declspec(dllexport)int Real(st_argv* p,FARPROC callBack)
+extern"C" __declspec(dllexport)int RealMessageBoxA(st_argv_MessageBoxA* p,FARPROC callBack)
 {
-	return MessageBoxA(p->hWnd,p->lpText,p->lpText,p->uType);
+	return MessageBoxA(p->hWnd,p->lpCaption,p->lpText,p->uType);
 }
 
 
 
-struct st_argv_QueryWeather
-{
-	const char*	string;
-	int						string_len;
-
-};
-
-
-
-typedef void (_cdecl* RPC_CallBack)(const char*,int len);
-DWORD WINAPI RPC_Async_Thread(LPVOID);
-
-
-struct weatch_thread_arg
-{
-	st_argv_QueryWeather qw;
-	RPC_CallBack callback;
-};
-
-weatch_thread_arg g_weather_thread_arg;
-
-/*服务器服务函数*/
+/*服务器服务函数机制*/
 /*
-下面的代码不是真实的调用哟
 
 这里的真正情况应该是：
 调用假回调函数													------服务器
@@ -223,40 +100,5 @@ weatch_thread_arg g_weather_thread_arg;
 由 “回调前环境处理” 负责：用 捕获到的 参数 调用“回调函数”。	------客户端
 
 */
-extern"C" __declspec(dllexport)int QueryWeather(st_argv_QueryWeather* p,FARPROC/*fake*/ callBack)
-{
-	g_weather_thread_arg.callback =(RPC_CallBack)callBack;
-	g_weather_thread_arg.qw = *p;
-
-	CreateThread(0,0,RPC_Async_Thread,&g_weather_thread_arg,0,0);
-
-	return 0;
-}
 
 
-void fakeCallBack()
-{
-	
-}
-
-
-/*
-“回调前环境处理”
-
-用指定参数进行回调*/
-DWORD WINAPI RPC_Async_Thread(LPVOID m_argv)
-{
-	weatch_thread_arg* argv = (weatch_thread_arg*)m_argv;
-
-	RPC_CallBack proc = argv->callback;
-	const char*  result = argv->qw.string;
-
-
-	Sleep(2000);
-
-
-	proc(result,strlen(result));
-
-	return 0;
-	
-}

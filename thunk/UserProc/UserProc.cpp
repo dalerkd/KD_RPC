@@ -34,19 +34,7 @@ int MessageBoxA(HANDLE,char*,char*,int);
 
 */
 
-//!!序号!!异步情况!!
-//!!SN!!1234
-//!!async!!0
-struct st_argv_MessageBoxA
-{
-	_In_opt_ HWND hWnd;
-	_In_opt_ LPCSTR lpText;
-	int lpText_len;
-	_In_opt_ LPCSTR lpCaption;
-	int lpCaption_len;
-	_In_ UINT uType;
 
-};
 
 struct st_argv_QueryWeather
 {
@@ -73,21 +61,28 @@ struct st_argv_test2
 	float f_f;
 };
 
+struct st_argv_MessageBoxA 
+{
+	_In_opt_ LPCSTR lpText;
+	int lpText_len;
+	_In_opt_ LPCSTR lpCaption;
+	int lpCaption_len;
+
+	_In_opt_ HWND hWnd;
+	_In_ UINT uType;
+
+};
 
 
 typedef void (_cdecl* RPC_CallBack)(const char*,int len);//RPC回调原形
 
 typedef  int (__cdecl *int_FUN_ADD)(int,int);
-typedef  int (__cdecl *int_FUN_REAL)(st_argv_MessageBoxA* p,RPC_CallBack callBack);
 
 typedef  int (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
 
-//typedef  int (__cdecl *int_FUN_Standard)(st_argv_QueryWeather* ,RPC_CallBack callBack);//标准
 
 
 
-
-void WeatherCallBack(const char*,int len);
 
 /*
 添加框架函数的步骤：
@@ -120,360 +115,387 @@ CWEB* pCWEB;				//客户端 网络管理收发线程	,不处理会引起线程问题和内存问题
 
 void Test4Callback(const char* cp,int len);
 
+
+int TestErrNumber = 0;
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-	bool Yuan = false;//原始测试，原始测试已经不用了。
-
-	if (Yuan)
-	{
-
-
-		HMODULE  test = LoadLibraryA("ServiceDLL.dll");
-
-		FARPROC fpAdd = GetProcAddress(test,"Add");		//导入算术测试
-		FARPROC fpReal = GetProcAddress(test,"Real");	//导入MessageBoxA测试
-		FARPROC fpQueryWeather = GetProcAddress(test,"QueryWeather");//导入回调测试
-
-		int_FUN_ADD funAdd =(int_FUN_ADD)fpAdd;
-		int_FUN_REAL funReal =(int_FUN_REAL)fpReal;
-		int_FUN_Standard funQueryWeather =(int_FUN_Standard)fpQueryWeather;
-
-
-
-		int AddResult  = funAdd(5,6);
-
-
-		st_argv_MessageBoxA tmp_Message;
-		tmp_Message.hWnd = NULL;
-		tmp_Message.lpText = "Hi";
-		tmp_Message.lpCaption = "title";
-		tmp_Message.uType = MB_OK;
-		int RealResult = funReal(&tmp_Message,nullptr);
-
-
-		st_argv_QueryWeather tmp_we;
-		tmp_we.string = "It's raining today";
-		tmp_we.string_len = strlen(tmp_we.string);
-
-		funQueryWeather((char*)&tmp_we,WeatherCallBack);//
-
-
-		Sleep(6000);
-	}
-	else
 	{
 		/*
 		1. 无指针参数：检查返回值
 		*/
 		HMODULE  test = LoadLibraryA("Client_fack.dll");
+
+		const bool excuteMessageBoxA = false;
+		if (excuteMessageBoxA)
 		{
-			OutputDebug("Test1:Start:无指针参数:检查返回值.\r\n");
-
-
+			OutputDebug("Execute function MessageBoxA test.\r\n");
 			if (test==0)
 			{
-				MessageBoxA(0,"不存在dll","",MB_OK);
+				OutputDebug("UserProc:Don't find the DLL");
+				++TestErrNumber;
+				goto End_Test_Go;
+
 			}
-			FARPROC fpAdd = GetProcAddress(test,"Add");		//导入算术测试
+			FARPROC fpAdd = GetProcAddress(test,"RealMessageBoxA");		//导入算术测试
 			if (fpAdd==nullptr)
 			{
-				MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
+				OutputDebug("UserProc:Havn't the function");
+				++TestErrNumber;
+				goto End_Test_Go;
 
 			}
 
 
 			int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
 
-			st_argv_Add tmp_Message;
-			tmp_Message.firstNumber = 5;
-			tmp_Message.secondNumber= 6;
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==11)
-			{
-				OutputDebug("Test1:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-			}
-			else
-			{
-				OutputDebug("Test1:Fault:");
-				MessageBoxA(0,"测试返回值错误","",MB_OK);
-			}
-			//FreeLibrary(test);
-			//test = 0;
+			st_argv_MessageBoxA tmp_Message;
+			tmp_Message.hWnd = NULL;
+			tmp_Message.lpText = "I'm Text.";
+			tmp_Message.lpText_len = strlen(tmp_Message.lpText)+1;
+			tmp_Message.lpCaption = "Caption Happy";
+			tmp_Message.lpCaption_len = strlen(tmp_Message.lpCaption)+1;
+			tmp_Message.uType = MB_OKCANCEL;
 
+			int RealResult = funAdd((char*)&tmp_Message,nullptr);
+			OutputDebug("Execute function MessageBoxA test result:%d",RealResult);
 		}
-		/*
-		2. 有指针参数：检查返回值和指针修改情况
-		- 标准模式
-		- 快速模式
-		*///
-		/*
-		test 2，other_c决定什么值，什么情况。
-		1. 第一指针为空，第二指针不为空。
-		2. 第一指针为空，第二指针为空。
-		3. 第一指针不为空-第二指针为空。
-		4. 第一指针不为空-第一个指针数据有修改，第二个指针数据不为空的情况。
-		5. 第一指针不为空-第二个指针数据有修改，第二个指针数据不为空的情况。
-		*/
-
+		else
 		{
-			OutputDebug("Test2:Start:有指针参数:检查返回值.\r\n");
 
-
-			if (test==0)
 			{
-				MessageBoxA(0,"不存在dll","",MB_OK);
-				return -1;
-			}
-			FARPROC fpAdd = GetProcAddress(test,"Test2_Sync");		//导入算术测试
-			if (fpAdd==nullptr)
-			{
-				MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
-				return -2;
-			}
+				OutputDebug("Test1:Starting:Sync:No Pointe,Check return value.\r\n");
 
 
-			int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
-			//1. 指针为空，普通参数为空的情况。
-			st_argv_test2 tmp_Message;
-			tmp_Message.firstStr = nullptr;
-			tmp_Message.firstStr_len = 0;
-			tmp_Message.secondStr= "SecondStr";
-			tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
-			tmp_Message.other_argv_c = 1;
-			tmp_Message.f_f = 1.1;
-
-
-
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==1)
-			{
-				OutputDebug("Test2:1:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-			}
-			else
-			{
-				OutputDebug("Test2:1:Fault:");
-				system("pause");
-			}
-			//////////////////////////////////////////////////////////////////////////
-			//2. 第二指针为空，第二指针为空。
-			tmp_Message.firstStr = nullptr;
-			tmp_Message.firstStr_len = 0;
-			tmp_Message.secondStr= nullptr;
-			tmp_Message.secondStr_len= 0;
-			tmp_Message.other_argv_c = 2;
-			tmp_Message.f_f = 2.2;
-
-
-			
-			RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==2)
-			{
-				OutputDebug("Test2:2:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-			}
-			else
-			{
-				OutputDebug("Test2:2:Fault:");
-				system("pause");
-			}
-
-			//////////////////////////////////////////////////////////////////////////
-			//3. 第一指针不为空-第二指针为空。
-			tmp_Message.firstStr = "FirstStr";
-			tmp_Message.firstStr_len = strlen(tmp_Message.firstStr)+1;
-			tmp_Message.secondStr= nullptr;
-			tmp_Message.secondStr_len= 0;
-			tmp_Message.other_argv_c = 3;
-			tmp_Message.f_f = 3.3;
-
-
-
-			RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==3)
-			{
-				OutputDebug("Test2:3:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-			}
-			else
-			{
-				OutputDebug("Test2:3:Fault:");
-				system("pause");
-			}
-			//////////////////////////////////////////////////////////////////////////
-			//4. 第一指针不为空-第一个指针数据有修改，第二个指针数据不为空的情况。
-			
-			//修改你得给个能修改的量
-			char* pf4= new char[0x10]();
-			char* tpFirstStr = "FirstStr";
-
-			for (int i=0;i<0x10;++i)
-			{
-				pf4[i] = tpFirstStr[i];
-			}
-			tmp_Message.firstStr = pf4;
-			tmp_Message.firstStr_len = strlen(tmp_Message.firstStr)+1;
-			tmp_Message.secondStr= "SecondStr";
-			tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
-			tmp_Message.other_argv_c = 4;
-			tmp_Message.f_f = 4.4;
-			
-
-
-			RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==4)
-			{
-				for (int i=0;i<tmp_Message.firstStr_len;++i)
+				if (test==0)
 				{
-					if (tmp_Message.firstStr[i]!=0)
-					{
-						OutputDebug("Test2:4:Fault:Change");
-						system("pause");
-						goto hah__;
-					}
-					
-				}
-				OutputDebug("Test2:4:Pass:\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-hah__:;
-				
-			}
-			else
-			{
-				OutputDebug("Test2:4:Fault:");
-				system("pause");
-			}
-			delete(pf4);
-			pf4 = nullptr;
-
-			//////////////////////////////////////////////////////////////////////////
-			//5. 第一指针不为空-第二个指针数据有修改，第二个指针数据不为空的情况。
-			//修改你得给个能修改的量
-			
-			tmp_Message.firstStr = "FirstStr";
-			tmp_Message.firstStr_len = strlen(tmp_Message.firstStr)+1;
-			char* ps5 =  new char[0x10]();
-			char* tpStr = "SecondStr";
-			
-			for (int i=0;i<0x10;++i)
-			{
-				ps5[i] = tpStr[i];
-			}
-			tmp_Message.secondStr= ps5;
-			tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
-			tmp_Message.other_argv_c = 5;
-			tmp_Message.f_f = 5.5;
-
-
-
-			RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==5)
-			{
-				for (int i=0;i<tmp_Message.secondStr_len;++i)
-				{
-					if (tmp_Message.secondStr[i]!=0)
-					{
-						OutputDebug("Test2:5:Fault:Change");
-						system("pause");
-						goto h__ah__;
-					}
+					OutputDebug("UserProc:Don't find the DLL");
+					++TestErrNumber;
+					goto End_Test_Go;
 
 				}
-				OutputDebug("Test2:5:Pass:.\r\n");//MessageBoxA(0,"测试通过","",MB_OK);
-				h__ah__:;
-			}
-			else
-			{
-				OutputDebug("Test2:5:Fault:");
-				system("pause");
-			}
-			delete(ps5);
-			ps5 = nullptr;
-			//////////////////////////////////////////////////////////////////////////
-			
-		}
-		/*
-		- 异步：
-		1. 无回调
-		*/
-		{
-			OutputDebug("Test3:Start:异步.无回调.\r\n");
+				FARPROC fpAdd = GetProcAddress(test,"Add");		//导入算术测试
+				if (fpAdd==nullptr)
+				{
+					OutputDebug("UserProc:Havn't the function");
+					++TestErrNumber;
+					goto End_Test_Go;
 
-			if (test==0)
-			{
-				MessageBoxA(0,"不存在dll","",MB_OK);
-			}
-			FARPROC fpAdd = GetProcAddress(test,"Add_Async_NoCallback");		//导入算术测试
-			if (fpAdd==nullptr)
-			{
-				MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
-
-			}
+				}
 
 
-			int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
+				int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
 
-			st_argv_Add tmp_Message;
-			tmp_Message.firstNumber = 5;
-			tmp_Message.secondNumber= 6;
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
-			if (RealResult==true)
-			{
-				;
-			}
-			else
-			{
-				OutputDebug("Test3:Fault:");
-				MessageBoxA(0,"测试3返回值错误","",MB_OK);
-			}
-			//FreeLibrary(test);
-			
-		}
-		/*
-		2. 有回调：检查回调信息情况
-		*/		
-		{
-			OutputDebug("Test4:Start:异步.回调.\r\n");
+				st_argv_Add tmp_Message;
+				tmp_Message.firstNumber = 5;
+				tmp_Message.secondNumber= 6;
+				int RealResult = funAdd((char*)&tmp_Message,nullptr);
+				if (RealResult==11)
+				{
+					OutputDebug("Test1:Pass:\r\n");
+				}
+				else
+				{
+					++TestErrNumber;
+					OutputDebug("Test1:Fault:");
 
-			if (test==0)
-			{
-				MessageBoxA(0,"不存在dll","",MB_OK);
-			}
-			FARPROC fpAdd = GetProcAddress(test,"Add_Async_NoCallback");		//导入算术测试
-			if (fpAdd==nullptr)
-			{
-				MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
+				}
+				//FreeLibrary(test);
+				//test = 0;
 
-			}
-
-
-			int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
-
-			st_argv_Add tmp_Message;
-			tmp_Message.firstNumber = 5;
-			tmp_Message.secondNumber= 6;
-			int RealResult = funAdd((char*)&tmp_Message,Test4Callback);
-			if (RealResult==true)
-			{
-				;
-			}
-			else
-			{
-				OutputDebug("Test4:Fault:");
-				MessageBoxA(0,"测试4返回值错误","",MB_OK);
 			}
 			/*
-			在客户端中调用以下析构函数前，不要直接使用FreeLibrary(test)。
-			
-
-			CFunctionInfo* g_CI_Client;	//客户端 接口信息管理		,不处理会引起内存泄漏
-			CAsyncStateManage* g_pasm;	//客户端 异步状态管理		,不处理会引起内存泄漏
-			CSyncStateManage* g_pssm;	//客户端 同步状态管理		,不处理会引起内存泄漏
-			CWEB* pCWEB;				//客户端 网络管理收发线程	,不处理会引起线程问题和内存问题
-			
-			
+			2. 有指针参数：检查返回值和指针修改情况
+			- 标准模式
+			- 快速模式
+			*///
+			/*
+			test 2，other_c决定什么值，什么情况。
+			1. 第一指针为空，第二指针不为空。
+			2. 第一指针为空，第二指针为空。
+			3. 第一指针不为空-第二指针为空。
+			4. 第一指针不为空-第一个指针数据有修改，第二个指针数据不为空的情况。
+			5. 第一指针不为空-第二个指针数据有修改，第二个指针数据不为空的情况。
 			*/
-			
+
+			{
+				OutputDebug("Test2:Sync,Starting:Have Pointe Argv:Check return value......\r\n");
+
+
+				if (test==0)
+				{
+					OutputDebug("UserProc:Don't find the DLL");
+					++TestErrNumber;
+					goto End_Test_Go;
+				}
+				FARPROC fpAdd = GetProcAddress(test,"Test2_Sync");		//导入算术测试
+				if (fpAdd==nullptr)
+				{
+					OutputDebug("UserProc:Havn't the function");
+					++TestErrNumber;
+					goto End_Test_Go;
+				}
+
+
+				int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
+				//1. 指针为空，普通参数为空的情况。
+				st_argv_test2 tmp_Message;
+				tmp_Message.firstStr = nullptr;
+				tmp_Message.firstStr_len = 0;
+				tmp_Message.secondStr= "SecondStr";
+				tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
+				tmp_Message.other_argv_c = 1;
+				tmp_Message.f_f = 1.1;
+
+
+				OutputDebug("Test2:1:Starting:First String Pointe Argv is empty.\r\n");
+				int RealResult = funAdd((char*)&tmp_Message,nullptr);
+				if (RealResult==1)
+				{
+					OutputDebug("Test2:1:Pass:\r\n");
+				}
+				else
+				{
+					++TestErrNumber;
+					OutputDebug("Test2:1:Fault:");
+				}
+				//////////////////////////////////////////////////////////////////////////
+				//2. 第一指针为空，第二指针为空。
+				tmp_Message.firstStr = nullptr;
+				tmp_Message.firstStr_len = 0;
+				tmp_Message.secondStr= nullptr;
+				tmp_Message.secondStr_len= 0;
+				tmp_Message.other_argv_c = 2;
+				tmp_Message.f_f = 2.2;
+
+
+				OutputDebug("Test2:2:Starting:Second Pointe is empty.\r\n");
+				RealResult = funAdd((char*)&tmp_Message,nullptr);
+				if (RealResult==2)
+				{
+					OutputDebug("Test2:2:Pass:\r\n");
+				}
+				else
+				{
+					++TestErrNumber;
+					OutputDebug("Test2:2:Fault:");
+				}
+
+				//////////////////////////////////////////////////////////////////////////
+				//3. 第一指针不为空-第二指针为空。
+				tmp_Message.firstStr = "FirstStr";
+				tmp_Message.firstStr_len = strlen(tmp_Message.firstStr)+1;
+				tmp_Message.secondStr= nullptr;
+				tmp_Message.secondStr_len= 0;
+				tmp_Message.other_argv_c = 3;
+				tmp_Message.f_f = 3.3;
+
+
+				OutputDebug("Test2:3:Starting:First Pointe is empty,Second Pointe is empty.\r\n");
+				RealResult = funAdd((char*)&tmp_Message,nullptr);
+				if (RealResult==3)
+				{
+					OutputDebug("Test2:3:Pass:\r\n");
+				}
+				else
+				{
+					++TestErrNumber;
+					OutputDebug("Test2:3:Fault:");
+				}
+				//////////////////////////////////////////////////////////////////////////
+				//4. 第一指针不为空-第一个指针数据有修改，第二个指针数据不为空的情况。
+
+				//修改你得给个能修改的量
+				char* pf4= new char[0x10]();
+				char* tpFirstStr = "FirstStr";
+
+				for (int i=0;i<0x10;++i)
+				{
+					pf4[i] = tpFirstStr[i];
+				}
+				tmp_Message.firstStr = pf4;
+				tmp_Message.firstStr_len = strlen(tmp_Message.firstStr)+1;
+				tmp_Message.secondStr= "SecondStr";
+				tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
+				tmp_Message.other_argv_c = 4;
+				tmp_Message.f_f = 4.4;
+
+
+				OutputDebug("Test2:4:Staring:First Pointe isn't empty,change by Service.Seoncd Pointe isn't empty.\r\n");
+				RealResult = funAdd((char*)&tmp_Message,nullptr);
+				if (RealResult==4)
+				{
+					for (int i=0;i<tmp_Message.firstStr_len;++i)
+					{
+						if (tmp_Message.firstStr[i]!=0)
+						{
+							++TestErrNumber;
+							OutputDebug("Test2:4:Fault:Change");
+							goto hah__;
+						}
+
+					}
+					OutputDebug("Test2:4:Pass:\r\n");
+hah__:;
+
+				}
+				else
+				{
+					++TestErrNumber;
+					OutputDebug("Test2:4:Fault:");
+				}
+				delete(pf4);
+				pf4 = nullptr;
+
+				//////////////////////////////////////////////////////////////////////////
+				//5. 第一指针不为空-第二个指针数据有修改，第二个指针数据不为空的情况。
+				//修改你得给个能修改的量
+
+				tmp_Message.firstStr = "FirstStr";
+				tmp_Message.firstStr_len = strlen(tmp_Message.firstStr)+1;
+				char* ps5 =  new char[0x10]();
+				char* tpStr = "SecondStr";
+
+				for (int i=0;i<0x10;++i)
+				{
+					ps5[i] = tpStr[i];
+				}
+				tmp_Message.secondStr= ps5;
+				tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
+				tmp_Message.other_argv_c = 5;
+				tmp_Message.f_f = 5.5;
+
+
+				OutputDebug("Test2:5:Staring:First Pointe isn't empty,change by Service.Seoncd Pointe isn't empty.\r\n");
+				RealResult = funAdd((char*)&tmp_Message,nullptr);
+				if (RealResult==5)
+				{
+					for (int i=0;i<tmp_Message.secondStr_len;++i)
+					{
+						if (tmp_Message.secondStr[i]!=0)
+						{
+							++TestErrNumber;
+							OutputDebug("Test2:5:Fault:Change");
+							goto h__ah__;
+						}
+
+					}
+					OutputDebug("Test2:5:Pass:.\r\n");
+h__ah__:;
+				}
+				else
+				{
+					++TestErrNumber;
+					OutputDebug("Test2:5:Fault:");
+				}
+				delete(ps5);
+				ps5 = nullptr;
+				//////////////////////////////////////////////////////////////////////////
+
+			}
+			/*
+			- 异步：
+			1. 无回调
+			*/
+			{
+				OutputDebug("Test3:Starting:Async.Havn't Callback.\r\n");
+				OutputDebug("Please see the server test display for success.\r\n");
+				if (test==0)
+				{
+					MessageBoxA(0,"不存在dll","",MB_OK);
+				}
+				FARPROC fpAdd = GetProcAddress(test,"Add_Async_NoCallback");
+				if (fpAdd==nullptr)
+				{
+					MessageBoxA(0,"存在dll,但不存在指定函数","",MB_OK);
+
+				}
+
+
+				int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
+
+				st_argv_Add tmp_Message;
+				tmp_Message.firstNumber = 5;
+				tmp_Message.secondNumber= 6;
+				int RealResult = funAdd((char*)&tmp_Message,nullptr);
+				if (RealResult==true)
+				{
+					;
+				}
+				else
+				{
+					OutputDebug("Test3:Fault:");
+					MessageBoxA(0,"测试3返回值错误","",MB_OK);
+				}
+				//FreeLibrary(test);
+
+			}
+			/*
+			2. 有回调：检查回调信息情况
+			*/		
+			{
+				OutputDebug("Test4:Start:Async.Callback testing.\r\n");
+
+				if (test==0)
+				{
+					++TestErrNumber;
+					OutputDebug("UserProc:Don't find the DLL");
+					goto End_Test_Go;
+				}
+				FARPROC fpAdd = GetProcAddress(test,"Add_Async_NoCallback");		//导入算术测试
+				if (fpAdd==nullptr)
+				{
+					++TestErrNumber;
+					OutputDebug("UserProc:Havn't the function");
+
+				}
+
+
+				int_FUN_Standard funAdd =(int_FUN_Standard)fpAdd;
+
+				st_argv_Add tmp_Message;
+				tmp_Message.firstNumber = 5;
+				tmp_Message.secondNumber= 6;
+				int RealResult = funAdd((char*)&tmp_Message,Test4Callback);
+				if (RealResult==true)
+				{
+					;
+				}
+				else
+				{
+					++TestErrNumber;
+					OutputDebug("Test4:Fault:");
+
+				}
+				/*
+				在客户端中调用以下析构函数前，不要直接使用FreeLibrary(test)。
+
+
+				CFunctionInfo* g_CI_Client;	//客户端 接口信息管理		,不处理会引起内存泄漏
+				CAsyncStateManage* g_pasm;	//客户端 异步状态管理		,不处理会引起内存泄漏
+				CSyncStateManage* g_pssm;	//客户端 同步状态管理		,不处理会引起内存泄漏
+				CWEB* pCWEB;				//客户端 网络管理收发线程	,不处理会引起线程问题和内存问题
+
+
+				*/
+			}
+
+End_Test_Go:
+			if (0==TestErrNumber)
+			{
+				Sleep(5000);
+				OutputDebug("Congratulations：All pass:)\r\n");
+			}
+			else
+			{
+				Sleep(5000);
+				OutputDebug("There are %d failed tests\r\n",TestErrNumber);
+			}
+
 		}
 
 	}
-	Sleep(-1);
+	getchar();
 
 	return 0;
 }
@@ -483,6 +505,7 @@ void Test4Callback(const char* cp,int len)
 	char p[] = {'r','e','s','u','l','t','i','s',':','1','1','\0'};
 	if (len!=(strlen(p)+1))
 	{
+		++TestErrNumber;
 		OutputDebug("Test4:Fault:length");
 		return;
 	}
@@ -490,28 +513,12 @@ void Test4Callback(const char* cp,int len)
 	if (stat==0)
 	{
 		OutputDebug("Test4:Pass:\r\n");
-		OutputDebug("All pass.:)恭喜.");
 	}
 	else
 	{
+		++TestErrNumber;
 		OutputDebug("Test4:Fault:memcpy");
 	}
 	return;
 }
 
-
-void WeatherCallBack(const char* cp,int len)
-{
-	if (len==0)
-	{
-		return;
-	}
-	int destlen = len+1;
-	char* p = new char[destlen]();
-	strcpy_s(p,destlen,cp);
-	MessageBoxA(0,p,"天气情况",MB_OK);
-
-	return ;
-
-
-}
