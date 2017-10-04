@@ -494,8 +494,30 @@ End_Test_Go:
 
 		}
 
+		//卸载代码
+		if (test!=0)
+		{
+
+			FARPROC fpExit = GetProcAddress(test,"ExitAllWork");		//导入算术测试
+			if (fpExit==nullptr)
+			{
+				OutputDebug("UserProc:Havn't the function");
+
+			}
+
+
+			int_FUN_Standard funExit =(int_FUN_Standard)fpExit;
+
+			int RealResult = funExit(nullptr,nullptr);
+
+
+
+			FreeLibrary(test);
+		}
+
 	}
 	getchar();
+
 
 	return 0;
 }

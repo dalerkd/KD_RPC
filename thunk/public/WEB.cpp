@@ -16,6 +16,22 @@ CWEB::CWEB()
 
 CWEB::~CWEB()
 {
+	for (;;)
+	{
+		if (!m_CSQ->IsEmpty())
+		{
+			st_asysnc_queue_argv tmp = m_CSQ->pop();
+			delete(tmp.data);
+
+		}
+		else
+		{
+			break;
+		}
+	}
+
+
+
 	delete(m_CSQ);
 }
 

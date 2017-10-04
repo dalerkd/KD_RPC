@@ -18,6 +18,7 @@ public:
 public:
 	void push(TSafeMapIndex id,TSafeMapData data);
 	TSafeMapData pop(TSafeMapIndex id);
+	TSafeMapIndex Explorer();
 
 private:
 	map<TSafeMapIndex,TSafeMapData> m_map;
@@ -71,4 +72,28 @@ TSafeMapData CSafeMap<TSafeMapIndex,TSafeMapData>
 
 
 }
+//返回任意一个索引
+template <typename TSafeMapIndex,typename TSafeMapData>
+TSafeMapIndex CSafeMap<TSafeMapIndex,TSafeMapData> 
+	::Explorer()
+{
+	EnterCriticalSection(&g_csSafeThread);
+	
 
+	map<TSafeMapIndex,TSafeMapData>::iterator it;
+
+	it = m_map.begin();
+
+	TSafeMapIndex ret_value=0;
+	if(it != m_map.end())
+	{
+		ret_value = it->first;
+	}
+	else
+	{
+		ret_value = 0;
+	}
+
+	LeaveCriticalSection(&g_csSafeThread);
+	return ret_value;
+}

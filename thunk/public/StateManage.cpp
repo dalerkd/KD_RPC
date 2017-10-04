@@ -19,6 +19,29 @@ CSyncStateManage::CSyncStateManage()
 
 CSyncStateManage::~CSyncStateManage()
 {
+	try
+	{
+		LONG tmp_id = 0;
+		for (;;)
+		{
+			tmp_id = m_safemap->Explorer();
+			if (0==tmp_id)
+			{
+				break;
+			}
+			else
+			{
+				st_CYSM st_tmp = m_safemap->pop(tmp_id);
+				*st_tmp.ret = -1;
+				SetEvent(st_tmp.hdEvent);
+			}
+		}
+
+	}
+	catch (...)
+	{
+
+	}
 	delete(m_safemap);
 }
 

@@ -59,13 +59,16 @@ struct st_argv
 
 
 CFunctionInfo* g_CI_Client = new CFunctionInfo();
+//数据格式
 CDataFormat g_CDF;
 //客户端 异步状态管理
 CAsyncStateManage* g_pasm = new CAsyncStateManage();
 //客户端 同步状态管理
 CSyncStateManage* g_pssm = new CSyncStateManage();
+//网络管理
 CWEB* pCWEB =new CWEB_Client();
-
+//是否处于正在退出状态
+HANDLE EXITING_EVENT = CreateEvent(NULL,TRUE,FALSE,NULL);;
 
 /*
 所有Fake函数的集中点
@@ -81,6 +84,24 @@ CWEB* pCWEB =new CWEB_Client();
 */
 int Core(int SN,PVOID pStruct,FARPROC callBack)
 {
+	{
+		DWORD dw = WaitForSingleObject(EXITING_EVENT,0);
+		if (dw==WAIT_TIMEOUT)
+		{
+			//没有触发//正常进行
+			;
+		}
+		else if (dw==WAIT_OBJECT_0)
+		{
+			//已经触发,正在退出，新请求直接返回。
+
+			return -1;
+
+		}
+	}
+
+
+
 	/*
 	参数复制拷贝 需要参数判定一下指针的数量?还是由格式化函数复制一站到底
 
@@ -168,6 +189,61 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 
 
 }
+
+//在CloseModule前你需要
+//调用本函数来退出所有RPC工作
+extern"C" __declspec(dllexport)int ExitAllWork(PVOID,FARPROC)
+{
+	//1. 关闭本地入口
+	SetEvent(EXITING_EVENT);
+	/*
+	1. 关网络入口,关本地入口，停止Recive。显然还有一些逻辑漏洞，当开始销毁时，无法保证没有任务正在中间运行。
+	2. 销毁待发送：pCWEB.push 栈
+	3. 已经接收内容处理：等Revice空？
+
+	4. 销毁未接收等待.触发。
+
+	
+	*/
+	
+	
+	
+	/*2. 本地数据已经接受的数据全部完成发送*/
+	
+	while(!pCWEB->AllSendIsFinish())
+	{
+		Sleep(100);
+	}
+
+	/*3. MailSlot的析构 可确保所有数据新接收的数据都已经创建线程开始它们的工作。*/
+	//网络管理
+	delete(pCWEB);
+	pCWEB = nullptr;
+
+	//客户端 函数信息
+	delete(g_CI_Client);
+	g_CI_Client = nullptr;
+
+	/*4. 稍微等待 已经接收数据所有的线程完成对数据信息的获取和处理
+	这取决于Flow2Format的速度。
+	FixMe: 需要确切地得知它们已经不再使用，异步状态和同步状态查询。
+	*/
+	Sleep(1000);
+
+	/*5. 销毁剩余数据*/
+	//客户端 异步状态管理
+	delete(g_pasm);
+	g_pasm = nullptr;
+	//客户端 同步状态管理
+	delete(g_pssm);
+	g_pssm = nullptr;
+
+	CloseHandle(EXITING_EVENT);
+	return true;
+}
+
+//0号SN是预备给更新接口功能用的。
+
 //Fake函数
 extern"C" __declspec(dllexport)int Add(PVOID pStruct,FARPROC callBack)
 {
