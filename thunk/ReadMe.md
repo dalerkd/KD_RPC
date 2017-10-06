@@ -18,21 +18,21 @@
 一共七个子工程：
 - Client
 客户端代理程序
-- KDRPC
-设计前期方案文本。
 - Service
 服务端代理程序
 - ServiceDLL
 服务器上工作的用户模块
-- testEverythin
-无用，这是我用来测试各种小技术的。
 - UserProc
 用户程序
-- WEB
-无用，设计时，用来测试MailSlot。
+- KDRPC
+设计前期方案文本。
+- testEverythin
+无用，这是我用来测试各种小技术的。
 
 
-UserProc->Client->......网络......->Service->ServiceDLL
+
+用户代码										服务器上的用户代码
+UserProc<->Client<->......网络......<->Service<->ServiceDLL
 
 
 我已经添加了8种情况的测试用例。涵盖了绝大多数提供服务的情况。直接编译执行Servic后执行UserProc即可测试.
@@ -54,13 +54,10 @@ UserProc->Client->......网络......->Service->ServiceDLL
 
 ## 用前需知
 
-1. 在客户端中调用以下析构函数前，不要直接使用FreeLibrary(test)。
-
-
-CFunctionInfo* g_CI_Client;	//客户端 接口信息管理		,不处理会引起内存泄漏
-CAsyncStateManage* g_pasm;	//客户端 异步状态管理		,不处理会引起内存泄漏
-CSyncStateManage* g_pssm;	//客户端 同步状态管理		,不处理会引起内存泄漏
-CWEB* pCWEB;				//客户端 网络管理收发线程	,不处理会引起线程问题和内存问题
+1. 如果你需要FreeLibrary(test)卸载模块，请先调用以下DLL接口来合理释放空间和结束进程：
+```
+ExitAllWork(char*/*留空*/,char*/*留空*/):
+```
 
 2. 建议将网络模块替换成你自己的高速模块。因为我为了方便使用了MailSlot网络这种天底下最慢的网络模块。
 
