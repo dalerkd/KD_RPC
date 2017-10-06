@@ -9,7 +9,7 @@ public:
 		StartWork();
 
 	};
-	~CMailSlot();
+	virtual ~CMailSlot();
 private:
 	void StartWork();
 	static unsigned int __stdcall TrySend(void* pM);

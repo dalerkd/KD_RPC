@@ -41,7 +41,7 @@ class CWEB
 {
 public:
 	CWEB();
-	~CWEB();
+	virtual ~CWEB();
 
 public:
 	struct st_asysnc_queue_argv 
