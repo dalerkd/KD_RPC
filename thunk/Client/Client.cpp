@@ -156,7 +156,7 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 			{
 				;//空回调是不会返回的
 			}
-			return true;
+			return TRUE;
 
 		}
 		else//同步处理

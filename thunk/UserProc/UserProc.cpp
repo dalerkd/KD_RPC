@@ -252,7 +252,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				tmp_Message.secondStr= "SecondStr";
 				tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
 				tmp_Message.other_argv_c = 1;
-				tmp_Message.f_f = 1.1;
+				tmp_Message.f_f = (float)1.1;
 
 
 				OutputDebug("Test2:1:Starting:First String Pointe Argv is empty.\r\n");
@@ -273,7 +273,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				tmp_Message.secondStr= nullptr;
 				tmp_Message.secondStr_len= 0;
 				tmp_Message.other_argv_c = 2;
-				tmp_Message.f_f = 2.2;
+				tmp_Message.f_f = (float)2.2;
 
 
 				OutputDebug("Test2:2:Starting:Second Pointe is empty.\r\n");
@@ -295,7 +295,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				tmp_Message.secondStr= nullptr;
 				tmp_Message.secondStr_len= 0;
 				tmp_Message.other_argv_c = 3;
-				tmp_Message.f_f = 3.3;
+				tmp_Message.f_f = (float)3.3;
 
 
 				OutputDebug("Test2:3:Starting:First Pointe is empty,Second Pointe is empty.\r\n");
@@ -325,7 +325,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				tmp_Message.secondStr= "SecondStr";
 				tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
 				tmp_Message.other_argv_c = 4;
-				tmp_Message.f_f = 4.4;
+				tmp_Message.f_f = (float)4.4;
 
 
 				OutputDebug("Test2:4:Staring:First Pointe isn't empty,change by Service.Seoncd Pointe isn't empty.\r\n");
@@ -425,7 +425,7 @@ h__ah__:;
 				tmp_Message.firstNumber = 5;
 				tmp_Message.secondNumber= 6;
 				int RealResult = funAdd((char*)&tmp_Message,nullptr);
-				if (RealResult==true)
+				if (RealResult==TRUE)
 				{
 					;
 				}
@@ -464,7 +464,7 @@ h__ah__:;
 				tmp_Message.firstNumber = 5;
 				tmp_Message.secondNumber= 6;
 				int RealResult = funAdd((char*)&tmp_Message,Test4Callback);
-				if (RealResult==true)
+				if (RealResult==TRUE)
 				{
 					;
 				}
