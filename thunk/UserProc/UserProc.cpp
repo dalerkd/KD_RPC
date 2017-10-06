@@ -33,7 +33,13 @@ int MessageBoxA(HANDLE,char*,char*,int);
 所以不如让其参数全部统一到我们的新格式来。
 
 */
+void printNowTime()
+{
+	SYSTEMTIME sysTime;
+	GetLocalTime( &sysTime );
+	printf("Now Time:%02d:%02d:%02d.%03d\r\n",sysTime.wHour, sysTime.wMinute, sysTime.wSecond,sysTime.wMilliseconds);
 
+}
 
 
 struct st_argv_QueryWeather
@@ -120,6 +126,7 @@ int TestErrNumber = 0;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	printNowTime();
 	{
 		/*
 		1. 无指针参数：检查返回值
@@ -483,12 +490,12 @@ h__ah__:;
 End_Test_Go:
 			if (0==TestErrNumber)
 			{
-				Sleep(5000);
+				//Sleep(5000);
 				OutputDebug("Congratulations：All pass:)\r\n");
 			}
 			else
 			{
-				Sleep(5000);
+				//Sleep(5000);
 				OutputDebug("There are %d failed tests\r\n",TestErrNumber);
 			}
 
@@ -513,9 +520,13 @@ End_Test_Go:
 
 
 			FreeLibrary(test);
+			
+			printf("\r\n\r\nModule Unload Success!\r\n");
 		}
 
 	}
+	printNowTime();
+	printf("Input Any key exit:");
 	getchar();
 
 

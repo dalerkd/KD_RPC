@@ -96,7 +96,7 @@ unsigned int __stdcall CMailSlot::TrySend(void* pM)
 		}
 		catch(...)
 		{
-			Sleep(1000);
+			Sleep(100);
 			continue;
 		}
 		//1.打开邮槽对象
@@ -169,13 +169,13 @@ unsigned int __stdcall CMailSlot::ThreadReceive(PVOID pM)
 		GetMailslotInfo(hSlot,(LPDWORD)NULL,&dwMsgSize,&dwMsgCount,(LPDWORD)NULL);
 		if (dwMsgSize==MAILSLOT_NO_MESSAGE)
 		{
-			Sleep(2000);
+			Sleep(100);
 			continue;
 		}
 		//2.2循环获取全部消息
 		if (dwMsgSize==0)
 		{
-			Sleep(2000);
+			Sleep(100);
 			continue;
 		}
 		lpReciveBuffer = new BYTE[dwMsgSize]();
