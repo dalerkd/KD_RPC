@@ -115,8 +115,9 @@ public:
 		HANDLE hdEvent_Copy_Finish;//上面两个参数复制完毕就触发这个信号。
 	};
 
-
-
+	//流转单元测试函数
+	static bool Format2Flow_test();
+	static bool Flow2Format_test();
 	private:
 		
 

@@ -78,7 +78,7 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 				tmp = ptmp+(i*2+1);//数据长度
 				m_real_length+=*tmp;
 			}
-			
+
 		}
 	}
 
@@ -161,7 +161,7 @@ int CDataFormat::Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,i
 			tmp_length+=0;
 		}
 
-		
+
 	}
 
 	//指针数据在流中所占总长度=指针数据的长度和+长度标记信息所占位置
@@ -535,4 +535,117 @@ int CDataFormat::Flow2Format(char *pFlow,int Flow_len,
 }
 
 
+
+//UNDONE: Need Finishe Format2Flow
+bool CDataFormat::Format2Flow_test()
+{
+	{
+		const int STRUCT_SIZE = 5;
+		char* pStruct = new char[STRUCT_SIZE]();//struct {char* ,int len}
+
+		int ID_proc = 0;//st_thread.ID_proc;
+		int SN		= 0;//st_thread.function_ID;
+
+
+
+		//没有指针数据的情况
+
+		//大小调整到纯指针状态
+		int number_Of_Argv_Pointer = 1;
+		int m_sizeOfStruct  = 2*sizeof(int)*number_Of_Argv_Pointer;//=format_len;
+
+		int m_pointerNumber = number_Of_Argv_Pointer;
+		int work_type = CDataFormat::RECV_INFO;
+		int argvTypeOption = CDataFormat::STANDARD_FLOW_MODE;
+		int async = true;//同步
+		FARPROC callBack = nullptr;
+		int ret2client_value = -1;//无效
+
+
+		//Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,int work_type,int argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,int real_len=0)
+		int realBufferLen = Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+			work_type,argvTypeOption,async,callBack);
+		if (0==realBufferLen)
+		{
+			throw("Core: ToFlow return 0");
+		}
+		char* flowBuffer = new char[realBufferLen]();
+		Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+			work_type,argvTypeOption,async,callBack,_Out_ flowBuffer,
+			realBufferLen,ret2client_value);
+
+		//发送flowBuffer,realBufferLen
+
+		//pCWEB->Send(flowBuffer,realBufferLen);
+
+		delete(flowBuffer);
+		flowBuffer = nullptr;
+		delete(pStruct);
+	}
+}
+//UNDONE: Need Finishe Flow2Format
+bool CDataFormat::Flow2Format_test()
+{
+	/*
+	测试 流-转格式，返回格式队列+备份格式队列。
+		Async决定了是否就是采用备份，备份格式队列的用途：在设计中用做对比用户对指针内容的修改。
+		设计中自动指针管理是个不错的选择。解决了“结构中拥有子结构是指针结构”的构造与释放问题。
+	*/
+	{
+		//////////////////////////////////////////////////////////////////////////
+		/*Flow2Format*/
+		int flow_len = 0;
+		const st_data_flow* pFlowBase =(st_data_flow*) new char[flow_len]();
+
+		char* pArgvCall  = nullptr;
+		char* pSecondCopyArgv = nullptr;
+		CSafeQueueAutoPointerManage* queue_memory_manage = nullptr;
+		CSafeQueueAutoPointerManage* queue_memory_copy	 = nullptr;
+		const bool bAsync = true;//pFlowBase->async;
+
+		try
+		{
+			int real_len=Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,nullptr,0,nullptr,nullptr,nullptr);
+			if (real_len==0)
+			{
+				OutputDebug("real_len=0?");
+				throw("real_len=0?");
+			}
+
+
+			pArgvCall = new char[real_len]();
+
+
+
+			queue_memory_manage = new CSafeQueueAutoPointerManage();
+			if (false == bAsync&&true)//就是这么奇怪。。。
+			{
+				pSecondCopyArgv = new char[real_len]();
+				queue_memory_copy = new CSafeQueueAutoPointerManage();
+			}
+
+			Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,pArgvCall,real_len,queue_memory_manage,pSecondCopyArgv,queue_memory_copy);
+
+
+		}
+		catch (char* string)
+		{
+			throw(string);//内部结构错误
+		}
+		catch (int errCode)//文件格式错误忽略之
+		{
+			OutputDebug("Flow Format Err,code:0x%x",errCode);
+			return errCode;
+		}
+		//////////////////////////////////////////////////////////////////////////
+		delete(pFlowBase);
+		delete(pArgvCall);
+		delete(queue_memory_manage);
+		delete(pSecondCopyArgv);
+		delete(queue_memory_copy);
+	}
+
+
+
+}
 
