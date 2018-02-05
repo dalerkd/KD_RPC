@@ -582,6 +582,7 @@ bool CDataFormat::Format2Flow_test()
 		flowBuffer = nullptr;
 		delete(pStruct);
 	}
+	return true;
 }
 //UNDONE: Need Finishe Flow2Format
 bool CDataFormat::Flow2Format_test()
@@ -646,6 +647,6 @@ bool CDataFormat::Flow2Format_test()
 	}
 
 
-
+	return true;
 }
 

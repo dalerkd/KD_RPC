@@ -120,8 +120,7 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 		int m_sizeOfStruct = g_CI_Client->QueryArgvStructSize(SN);
 
 
-		CID_Manager ID_Manager;
-		LONG ID_proc = ID_Manager.GetNewID();
+		LONG ID_proc = CID_Manager::GetNewID();
 
 		//同异步——不同的返回方式
 		const bool async =g_CI_Client->QueryASync(SN);

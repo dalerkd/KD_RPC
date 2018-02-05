@@ -124,10 +124,11 @@ void Test4Callback(const char* cp,int len);
 
 int TestErrNumber = 0;
 
-int _tmain(int argc, _TCHAR* argv[])
+
+void Work_Test()
 {
-	printNowTime();
 	{
+		TestErrNumber = 0;
 		/*
 		1. 无指针参数：检查返回值
 		*/
@@ -525,6 +526,21 @@ End_Test_Go:
 		}
 
 	}
+
+}
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	printNowTime();
+	
+	Work_Test();
+	
+	printNowTime();
+	printf("Input Any key exit:");
+	getchar();
+
+	Work_Test();
 	printNowTime();
 	printf("Input Any key exit:");
 	getchar();
