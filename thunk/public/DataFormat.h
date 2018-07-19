@@ -26,23 +26,23 @@ public:
 	};
 	struct st_data_flow
 	{
-		int		length_of_this_struct;//整个结构的长度
-		int		work_type;//本次工作类型:e_work_type
+		LONG64		length_of_this_struct;//整个结构的长度
+		LONG64		work_type;//本次工作类型:e_work_type
 		long	ID_proc;
-		int 	functionID;
+		LONG64 	functionID;
 
 		//是否异步
 		char	async;
 		//是否允许回调
 		char	permit_callback;
-		int		return_value;//返回值,在同步下服务器端有效：这是个不顺眼的设置
+		LONG64		return_value;//返回值,在同步下服务器端有效：这是个不顺眼的设置
 		//参数结构体格式扩展配置，当前为空。仅格式。0:全参数格式;1:快速参数格式,即参数长度为0,表示无改动。
-		int		argvTypeOption;	//e_argv_type_option
+		LONG64		argvTypeOption;	//e_argv_type_option
 
 		/*参数结构体总长度*/
-		int		length_Of_Argv_Struct;
+		LONG64		length_Of_Argv_Struct;
 		/*参数结构体中指针结构体的数量*/
-		int		number_Of_Argv_Pointer;
+		LONG64		number_Of_Argv_Pointer;
 
 		char	argv_Struct[0];   
 
@@ -53,9 +53,9 @@ public:
 		struct argv
 		{
 		char* a
-		int len_a;
+		LONG64 len_a;
 		char* b
-		int len_b;
+		LONG64 len_b;
 		char c
 		}	
 		其中指针结构体的数量是2.
@@ -68,7 +68,7 @@ public:
 	};
 	struct st_argv_Node_Struct
 	{
-		int length;
+		LONG64 length;
 		char data[0];
 	};
 
@@ -96,14 +96,14 @@ public:
 	如果提供错误的长度会得到异常。
 
 	*/
-	static int Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,int work_type,int argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,int real_len=0,int ret_value=0);
+	static LONG64 Format2Flow(LONG ID_proc,LONG64 SN,char*pStruct,LONG64 sizeOfStruct,LONG64 ArgvPointerNumber,LONG64 work_type,LONG64 argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,LONG64 real_len=0,LONG64 ret_value=0);
 
 
 	//流转换成格式:客户端解码：不是一个线程函数,因为它不阻塞：因为栈管理程序管理的是信号们。
 	/*
 
 	*/
-	static int Flow2Format(char *pFlow,int Flow_len, char* pArgvCall,int Real_Format_len, CSafeQueueAutoPointerManage* queue_memory_manage, char* pSecondCopyArgv,CSafeQueueAutoPointerManage* queue_memory_copy );
+	static LONG64 Flow2Format(char *pFlow,LONG64 Flow_len, char* pArgvCall,LONG64 Real_Format_len, CSafeQueueAutoPointerManage* queue_memory_manage, char* pSecondCopyArgv,CSafeQueueAutoPointerManage* queue_memory_copy );
 	/************************************************************************/
 	/* 服务端使用															*/
 	/************************************************************************/
@@ -111,7 +111,7 @@ public:
 	struct  st_thread_FlowToFormat_Excute_argvs
 	{
 		char* flow;
-		int flow_len;
+		LONG64 flow_len;
 		HANDLE hdEvent_Copy_Finish;//上面两个参数复制完毕就触发这个信号。
 	};
 

@@ -45,14 +45,14 @@ CSyncStateManage::~CSyncStateManage()
 	delete(m_safemap);
 }
 
-void CSyncStateManage::push(LONG ID_proc,int* ret,char* pFormat,int PointerNumber,HANDLE hdEvent)
+void CSyncStateManage::push(LONG ID_proc,LONG64* ret,char* pFormat,LONG64 PointerNumber,HANDLE hdEvent)
 {
 	st_CYSM tmp={ret,pFormat,PointerNumber,hdEvent};
 	m_safemap->push(ID_proc,tmp);
 	return;
 }
 
-int* CSyncStateManage::findAndPop(LONG ID_proc,char*& pFormat,int& PointerNumber,HANDLE& hdEvent)
+LONG64* CSyncStateManage::findAndPop(LONG ID_proc,char*& pFormat,LONG64& PointerNumber,HANDLE& hdEvent)
 {
 	st_CYSM tmp = m_safemap->pop(ID_proc);
 

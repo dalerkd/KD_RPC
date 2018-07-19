@@ -24,7 +24,7 @@ CFunctionInfo* g_CI_Service = new CFunctionInfo();
 struct st_Async_Thread_Callback 
 {
 	LONG ID_proc;
-	int function_ID;
+	LONG64 function_ID;
 };
 
 CSafeMap<DWORD,st_Async_Thread_Callback>* g_Async_Thread_Callback = 

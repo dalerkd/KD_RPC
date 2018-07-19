@@ -19,9 +19,9 @@ public:
 public:
 	struct  st_CYSM
 	{
-		int* ret;
+		LONG64* ret;
 		char* pStruct;
-		int PointerNumber;
+		LONG64 PointerNumber;
 		HANDLE hdEvent;
 	};
 	
@@ -33,9 +33,9 @@ public:
 	hdEvent			用于触发收到回复的事件。
 
 	*/
-	void push(LONG ID_proc,int* ret,char* pFormat,int PointerNumber,HANDLE hdEvent);
+	void push(LONG ID_proc,LONG64* ret,char* pFormat,LONG64 PointerNumber,HANDLE hdEvent);
 
-	int* findAndPop(LONG ID_proc,char*& pFormat,int& PointerNumber,HANDLE& hdEvent);
+	LONG64* findAndPop(LONG ID_proc,char*& pFormat,LONG64& PointerNumber,HANDLE& hdEvent);
 private:
 	CSafeMap<LONG,st_CYSM>* m_safemap;
 };

@@ -35,14 +35,14 @@ CWEB::~CWEB()
 	delete(m_CSQ);
 }
 
-void CWEB::Send(char* data,int data_len) //其实是个push而已.
+void CWEB::Send(char* data,LONG64 data_len) //其实是个push而已.
 {
 	if (data_len<=0)
 	{
 		throw("CWEB::Send:data_len<=0");
 	}
 	char* p = new char[data_len]();
-	int stat=memcpy_s(p,data_len,data,data_len);
+	LONG64 stat=memcpy_s(p,data_len,data,data_len);
 	if (stat)
 	{
 		throw("memcpy_s return err.");

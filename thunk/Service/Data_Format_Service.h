@@ -20,6 +20,6 @@ public:
 
 	并在这里发送
 	*/
-	static void ServiceAsyncCallBack(char* p,int p_len);
+	static void ServiceAsyncCallBack(char* p,LONG64 p_len);
 };
 

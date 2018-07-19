@@ -28,7 +28,7 @@
 我觉得这种字符串不在网络上传输，就是函数调用和函数名的一种分离，是好的。
 
 能否动态生成自由参数的调用呢？eg：
-int MessageBoxA(HANDLE,char*,char*,int);
+LONG64 MessageBoxA(HANDLE,char*,char*,LONG64);
 答案是不可以：因为字符串多长我不知道。所以还是需要修改参数。
 所以不如让其参数全部统一到我们的新格式来。
 
@@ -45,24 +45,24 @@ void printNowTime()
 struct st_argv_QueryWeather
 {
 	const char*	string;
-	int			string_len;
+	LONG64			string_len;
 
 };
 
 
 struct st_argv_Add
 {
-	int firstNumber;
-	int secondNumber;
+	LONG64 firstNumber;
+	LONG64 secondNumber;
 };
-//int Add(PVOID pStruct,FARPROC callBack)
+//LONG64 Add(PVOID pStruct,FARPROC callBack)
 
 struct st_argv_test2
 {
 	char* firstStr;
-	int   firstStr_len;
+	LONG64   firstStr_len;
 	char* secondStr;
-	int   secondStr_len;
+	LONG64   secondStr_len;
 	char  other_argv_c;
 	float f_f;
 };
@@ -70,9 +70,9 @@ struct st_argv_test2
 struct st_argv_MessageBoxA 
 {
 	_In_opt_ LPCSTR lpText;
-	int lpText_len;
+	LONG64 lpText_len;
 	_In_opt_ LPCSTR lpCaption;
-	int lpCaption_len;
+	LONG64 lpCaption_len;
 
 	_In_opt_ HWND hWnd;
 	_In_ UINT uType;
@@ -80,11 +80,11 @@ struct st_argv_MessageBoxA
 };
 
 
-typedef void (_cdecl* RPC_CallBack)(const char*,int len);//RPC回调原形
+typedef void (_cdecl* RPC_CallBack)(const char*,LONG64 len);//RPC回调原形
 
-typedef  int (__cdecl *int_FUN_ADD)(int,int);
+typedef  LONG64 (__cdecl *int_FUN_ADD)(LONG64,LONG64);
 
-typedef  int (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
+typedef  LONG64 (__cdecl *int_FUN_Standard)(char* ,RPC_CallBack callBack);//标准
 
 
 
@@ -119,10 +119,10 @@ CWEB* pCWEB;				//客户端 网络管理收发线程	,不处理会引起线程问题和内存问题
 
 
 
-void Test4Callback(const char* cp,int len);
+void Test4Callback(const char* cp,LONG64 len);
 
 
-int TestErrNumber = 0;
+LONG64 TestErrNumber = 0;
 
 
 void Work_Test()
@@ -165,7 +165,7 @@ void Work_Test()
 			tmp_Message.lpCaption_len = strlen(tmp_Message.lpCaption)+1;
 			tmp_Message.uType = MB_OKCANCEL;
 
-			int RealResult = funAdd((char*)&tmp_Message,nullptr);
+			LONG64 RealResult = funAdd((char*)&tmp_Message,nullptr);
 			OutputDebug("Execute function MessageBoxA test result:%d",RealResult);
 		}
 		else
@@ -197,7 +197,7 @@ void Work_Test()
 				st_argv_Add tmp_Message;
 				tmp_Message.firstNumber = 5;
 				tmp_Message.secondNumber= 6;
-				int RealResult = funAdd((char*)&tmp_Message,nullptr);
+				LONG64 RealResult = funAdd((char*)&tmp_Message,nullptr);
 				if (RealResult==11)
 				{
 					OutputDebug("Test1:Pass:\r\n");
@@ -257,7 +257,7 @@ void Work_Test()
 
 
 				OutputDebug("Test2:1:Starting:First String Pointe Argv is empty.\r\n");
-				int RealResult = funAdd((char*)&tmp_Message,nullptr);
+				LONG64 RealResult = funAdd((char*)&tmp_Message,nullptr);
 				if (RealResult==1)
 				{
 					OutputDebug("Test2:1:Pass:\r\n");
@@ -317,7 +317,7 @@ void Work_Test()
 				char* pf4= new char[0x10]();
 				char* tpFirstStr = "FirstStr";
 
-				for (int i=0;i<0x10;++i)
+				for (LONG64 i=0;i<0x10;++i)
 				{
 					pf4[i] = tpFirstStr[i];
 				}
@@ -333,7 +333,7 @@ void Work_Test()
 				RealResult = funAdd((char*)&tmp_Message,nullptr);
 				if (RealResult==4)
 				{
-					for (int i=0;i<tmp_Message.firstStr_len;++i)
+					for (LONG64 i=0;i<tmp_Message.firstStr_len;++i)
 					{
 						if (tmp_Message.firstStr[i]!=0)
 						{
@@ -364,7 +364,7 @@ hah__:;
 				char* ps5 =  new char[0x10]();
 				char* tpStr = "SecondStr";
 
-				for (int i=0;i<0x10;++i)
+				for (LONG64 i=0;i<0x10;++i)
 				{
 					ps5[i] = tpStr[i];
 				}
@@ -378,7 +378,7 @@ hah__:;
 				RealResult = funAdd((char*)&tmp_Message,nullptr);
 				if (RealResult==5)
 				{
-					for (int i=0;i<tmp_Message.secondStr_len;++i)
+					for (LONG64 i=0;i<tmp_Message.secondStr_len;++i)
 					{
 						if (tmp_Message.secondStr[i]!=0)
 						{
@@ -425,7 +425,7 @@ h__ah__:;
 				st_argv_Add tmp_Message;
 				tmp_Message.firstNumber = 5;
 				tmp_Message.secondNumber= 6;
-				int RealResult = funAdd((char*)&tmp_Message,nullptr);
+				LONG64 RealResult = funAdd((char*)&tmp_Message,nullptr);
 				if (RealResult==TRUE)
 				{
 					;
@@ -464,7 +464,7 @@ h__ah__:;
 				st_argv_Add tmp_Message;
 				tmp_Message.firstNumber = 5;
 				tmp_Message.secondNumber= 6;
-				int RealResult = funAdd((char*)&tmp_Message,Test4Callback);
+				LONG64 RealResult = funAdd((char*)&tmp_Message,Test4Callback);
 				if (RealResult==TRUE)
 				{
 					;
@@ -516,7 +516,7 @@ End_Test_Go:
 
 			int_FUN_Standard funExit =(int_FUN_Standard)fpExit;
 
-			int RealResult = funExit(nullptr,nullptr);
+			LONG64 RealResult = funExit(nullptr,nullptr);
 
 
 
@@ -530,7 +530,7 @@ End_Test_Go:
 }
 
 
-int _tmain(int argc, _TCHAR* argv[])
+void _tmain(LONG64 argc, _TCHAR* argv[])
 {
 	printNowTime();
 	
@@ -546,10 +546,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	getchar();
 
 
-	return 0;
+	return;
 }
 
-void Test4Callback(const char* cp,int len)
+void Test4Callback(const char* cp,LONG64 len)
 {
 	char p[] = {'r','e','s','u','l','t','i','s',':','1','1','\0'};
 	if (len!=(strlen(p)+1))
@@ -558,7 +558,7 @@ void Test4Callback(const char* cp,int len)
 		OutputDebug("Test4:Fault:length");
 		return;
 	}
-	int stat = memcmp(p,cp,len);
+	LONG64 stat = memcmp(p,cp,len);
 	if (stat==0)
 	{
 		OutputDebug("Test4:Pass:\r\n");

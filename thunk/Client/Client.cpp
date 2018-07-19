@@ -14,10 +14,10 @@
 
 
 // 这是导出变量的一个示例
-CLIENT_API int nClient=0;
+CLIENT_API LONG64 nClient=0;
 
 // 这是导出函数的一个示例。
-CLIENT_API int fnClient(void)
+CLIENT_API LONG64 fnClient(void)
 {
 	return 42;
 }
@@ -50,9 +50,9 @@ struct st_argv
 {
 	_In_opt_ HWND hWnd;
 	_In_opt_ LPCSTR lpText;
-	int lpText_len;
+	LONG64 lpText_len;
 	_In_opt_ LPCSTR lpCaption;
-	int lpCaption_len;
+	LONG64 lpCaption_len;
 	_In_ UINT uType;
 
 };
@@ -82,7 +82,7 @@ HANDLE EXITING_EVENT = CreateEvent(NULL,TRUE,FALSE,NULL);;
 3. 结构体有几个指针(规定指针必须在结构体中靠前
 
 */
-int Core(int SN,PVOID pStruct,FARPROC callBack)
+LONG64 Core(LONG64 SN,PVOID pStruct,FARPROC callBack)
 {
 	{
 		DWORD dw = WaitForSingleObject(EXITING_EVENT,0);
@@ -116,8 +116,8 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 	//发送参数方式统一
 	try
 	{
-		int m_pointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
-		int m_sizeOfStruct = g_CI_Client->QueryArgvStructSize(SN);
+		LONG64 m_pointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
+		LONG64 m_sizeOfStruct = g_CI_Client->QueryArgvStructSize(SN);
 
 
 		LONG ID_proc = CID_Manager::GetNewID();
@@ -127,7 +127,7 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 
 
 		//不会返回0，它会整合一些别的结构。
-		int realBufferLen = g_CDF.Format2Flow(ID_proc,SN,(char*)pStruct,m_sizeOfStruct,m_pointerNumber,
+		LONG64 realBufferLen = g_CDF.Format2Flow(ID_proc,SN,(char*)pStruct,m_sizeOfStruct,m_pointerNumber,
 			CDataFormat::Query_INFO,CDataFormat::QUICK_FLOW_MODE,async,callBack);
 		if (0==realBufferLen)
 		{
@@ -160,8 +160,8 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 		}
 		else//同步处理
 		{
-			int ret = 0;//返回值
-			int PointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
+			LONG64 ret = 0;//返回值
+			LONG64 PointerNumber = g_CI_Client->QueryArgvPointerNumber(SN);
 
 			//Event
 			HANDLE hdEvent =CreateEvent(NULL,FALSE,FALSE,NULL);
@@ -191,7 +191,7 @@ int Core(int SN,PVOID pStruct,FARPROC callBack)
 
 //在CloseModule前你需要
 //调用本函数来退出所有RPC工作
-extern"C" __declspec(dllexport)int ExitAllWork(PVOID,FARPROC)
+extern"C" __declspec(dllexport)LONG64 ExitAllWork(PVOID,FARPROC)
 {
 	//1. 关闭本地入口
 	SetEvent(EXITING_EVENT);
@@ -244,27 +244,27 @@ extern"C" __declspec(dllexport)int ExitAllWork(PVOID,FARPROC)
 //0号SN是预备给更新接口功能用的。
 
 //Fake函数
-extern"C" __declspec(dllexport)int Add(PVOID pStruct,FARPROC callBack)
+extern"C" __declspec(dllexport)LONG64 Add(PVOID pStruct,FARPROC callBack)
 {
-	int m_SN = 1;
+	LONG64 m_SN = 1;
 	return Core(m_SN,pStruct,callBack);
 }
 
-extern"C" __declspec(dllexport)int Add_Async_NoCallback(PVOID pStruct,FARPROC callBack)
+extern"C" __declspec(dllexport)LONG64 Add_Async_NoCallback(PVOID pStruct,FARPROC callBack)
 {
-	int m_SN = 2;
+	LONG64 m_SN = 2;
 	return Core(m_SN,pStruct,callBack);
 }
 
-extern"C" __declspec(dllexport)int Test2_Sync(PVOID pStruct,FARPROC callBack)
+extern"C" __declspec(dllexport)LONG64 Test2_Sync(PVOID pStruct,FARPROC callBack)
 {
-	int m_SN = 3;
+	LONG64 m_SN = 3;
 	return Core(m_SN,pStruct,callBack);
 }
 
-extern"C" __declspec(dllexport)int RealMessageBoxA(PVOID pStruct,FARPROC callBack)
+extern"C" __declspec(dllexport)LONG64 RealMessageBoxA(PVOID pStruct,FARPROC callBack)
 {
-	int m_SN = 4;
+	LONG64 m_SN = 4;
 	return Core(m_SN,pStruct,callBack);
 }
 

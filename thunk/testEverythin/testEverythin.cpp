@@ -18,7 +18,7 @@ DWORD WINAPI x(LPVOID  p)
 
 //事件不能遗弃
 
-int _tmain(int argc, _TCHAR* argv[])
+void _tmain(LONG64 argc, _TCHAR* argv[])
 {
 
 
@@ -32,6 +32,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	DWORD y = WaitForSingleObject(hdEvent,INFINITE);
 	CloseHandle(hdEvent);
 
-	return 0;
+	return;
 }
 

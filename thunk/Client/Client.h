@@ -20,13 +20,13 @@ public:
 	// TODO: 在此添加您的方法。
 };
 
-extern CLIENT_API int nClient;
+extern CLIENT_API LONG64 nClient;
 
-CLIENT_API int fnClient(void);
+CLIENT_API LONG64 fnClient(void);
 
 
 
-extern"C" __declspec(dllexport)int aaaa(PVOID* p,FARPROC callBack);
+extern"C" __declspec(dllexport)LONG64 aaaa(PVOID* p,FARPROC callBack);
 
 
 

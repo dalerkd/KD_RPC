@@ -6,15 +6,15 @@
 
 struct st_argv_Add
 {
-	int firstNumber;
-	int secondNumber;
+	LONG64 firstNumber;
+	LONG64 secondNumber;
 };
 struct st_argv_test2
 {
 	char* firstStr;
-	int   firstStr_len;
+	LONG64   firstStr_len;
 	char* secondStr;
-	int   secondStr_len;
+	LONG64   secondStr_len;
 	char  other_argv_c;
 	float f_f;
 };
@@ -23,9 +23,9 @@ struct st_argv_test2
 struct st_argv_MessageBoxA 
 {
 	_In_opt_ LPCSTR lpText;
-	int lpText_len;
+	LONG64 lpText_len;
 	_In_opt_ LPCSTR lpCaption;
-	int lpCaption_len;
+	LONG64 lpCaption_len;
 
 	_In_opt_ HWND hWnd;
 	_In_ UINT uType;
@@ -48,7 +48,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 			³õÊ¼»¯functionInfo
 			g_CI_Client->AddInfo();
 			*/
-			int ArgvPointerNumber = 0;
+			LONG64 ArgvPointerNumber = 0;
 
 			g_CI_Client->AddInfo(1,"Add",false,ArgvPointerNumber,sizeof(st_argv_Add));
 			g_CI_Client->AddInfo(2,"Add_Async_NoCallback",true,ArgvPointerNumber,sizeof(st_argv_Add));

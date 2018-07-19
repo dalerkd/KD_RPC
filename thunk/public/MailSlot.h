@@ -15,7 +15,7 @@ private:
 	static unsigned int __stdcall TrySend(void* pM);
 	static unsigned int __stdcall ThreadReceive(void* pM);
 public:
-	virtual void Recive_Data(char* data,int data_len)=0;
+	virtual void Recive_Data(char* data,LONG64 data_len)=0;
 
 private:
 	HANDLE m_Exit_Recive_Thread_EVENT;		//通知线程退出时激活

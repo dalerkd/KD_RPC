@@ -6,15 +6,15 @@
 
 
 // 这是导出变量的一个示例
-SERVICEDLL_API int nServiceDLL=0;
+SERVICEDLL_API LONG64 nServiceDLL=0;
 
 // 这是导出函数的一个示例。
-SERVICEDLL_API int fnServiceDLL(void)
+SERVICEDLL_API LONG64 fnServiceDLL(void)
 {
 	return 42;
 }
 
-int Add(st_argv_Add* p,char* cb)
+LONG64 Add(st_argv_Add* p,char* cb)
 {
 	if (cb!=nullptr)
 	{
@@ -24,7 +24,7 @@ int Add(st_argv_Add* p,char* cb)
 	return p->firstNumber+p->secondNumber;
 }
 
-int Add_Async_NoCallback(st_argv_Add* p,RPC_CallBack cb)
+LONG64 Add_Async_NoCallback(st_argv_Add* p,RPC_CallBack cb)
 {
 	if (cb!=nullptr)
 	{
@@ -43,7 +43,7 @@ int Add_Async_NoCallback(st_argv_Add* p,RPC_CallBack cb)
 	return 0;
 }
 
-int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
+LONG64 Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
 {
 	if (cb!=nullptr)
 	{
@@ -90,7 +90,7 @@ int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
 		}
 		else
 		{
-			for (int i=0;i<p->firstStr_len;++i)
+			for (LONG64 i=0;i<p->firstStr_len;++i)
 			{
 				p->firstStr[i]=0;
 			}
@@ -104,7 +104,7 @@ int Test2_Sync(st_argv_test2* p,RPC_CallBack cb)
 		}
 		else
 		{
-			for (int i=0;i<p->secondStr_len;++i)
+			for (LONG64 i=0;i<p->secondStr_len;++i)
 			{
 				p->secondStr[i]=0;
 			}

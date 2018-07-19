@@ -25,10 +25,10 @@ CData_Format_Client::~CData_Format_Client(void)
 struct st_async_callback_argv_return
 {
 	char* data;
-	int data_len;
+	LONG64 data_len;
 };
 
-typedef void (*callback_real)(char*,int); 
+typedef void (*callback_real)(char*,LONG64); 
 unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp) //由它来自行区分是否异步,并走不同的流程。
 {
 	int ret_value = 0;//也就是错误码哟
@@ -58,7 +58,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 	//copy 指针
 	const st_data_flow* pFlowBase =(st_data_flow*) new char[p->flow_len]();
 
-	int stat = memcpy_s((char*)pFlowBase,p->flow_len,p->flow,p->flow_len);
+	LONG64 stat = memcpy_s((char*)pFlowBase,p->flow_len,p->flow,p->flow_len);
 	if (stat)
 	{
 		throw("memcpy_s return err.");
@@ -78,7 +78,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 	char* pArgvCall  = nullptr;
 	CSafeQueueAutoPointerManage* queue_memory_manage = nullptr;
 	
-	int real_len = 0;//Format长度
+	LONG64 real_len = 0;//Format长度
 	try
 	{
 		real_len = CDataFormat::Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,nullptr,0,nullptr,nullptr,nullptr);
@@ -124,7 +124,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 	{
 		if (bAsync)
 		{
-			const int AsyncArgvLimit = 1;
+			const LONG64 AsyncArgvLimit = 1;
 			if (AsyncArgvLimit!=pFlowBase->number_Of_Argv_Pointer)
 			{
 				OutputDebug("Warming:ID_proc:0x%x in async,\
@@ -150,9 +150,9 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 		}
 		else//同步
 		{
-			int* p_ret_to_wait_sync_value	=	nullptr;
+			LONG64* p_ret_to_wait_sync_value	=	nullptr;
 			char* pFormat	=	nullptr;
-			int PointerNumber= 0;
+			LONG64 PointerNumber= 0;
 			HANDLE hdEvent = INVALID_HANDLE_VALUE;
 
 			p_ret_to_wait_sync_value = g_pssm->findAndPop(m_ID_proc,pFormat,PointerNumber,hdEvent);
@@ -163,11 +163,11 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 				goto Recive_Data_Client_End;
 			}
 			//Format 将结果上去
-			for (int i=0,offset=0;i<PointerNumber;++i,offset+=sizeof(int)*2)
+			for (LONG64 i=0,offset=0;i<PointerNumber;++i,offset+=sizeof(LONG64)*2)
 			{
 				
-				char* pOldData = (char*)*(int*)(pFormat+offset);
-				char* pNewData = (char*)*(int*)(pArgvCall+offset);
+				char* pOldData = (char*)*(LONG64*)(pFormat+offset);
+				char* pNewData = (char*)*(LONG64*)(pArgvCall+offset);
 				if (pNewData!=nullptr&&pOldData==nullptr)
 				{
 					OutputDebug("Client_FlowToFormat_Execute:Data Format Error,Old Pointer=0,New Pointer!=0,return.");
@@ -176,7 +176,7 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 
 				if (pNewData==nullptr&&pOldData==nullptr)
 				{
-					if (0!=*(int*)(pArgvCall+offset+sizeof(int)))
+					if (0!=*(LONG64*)(pArgvCall+offset+sizeof(LONG64)))
 					{
 						OutputDebug("Client_FlowToFormat_Execute:Data Format Error,New Pointer=nullptr,Pointer_len!=0,return.");
 						goto Recive_Data_Client_End;
@@ -206,16 +206,16 @@ unsigned int WINAPI  CData_Format_Client::Client_FlowToFormat_Execute(LPVOID lp)
 				else//两者都有数据
 				{
 					//检查长度一致的情况
-					if(*(int*)(pFormat+offset+sizeof(int))!=*(int*)(pArgvCall+offset+sizeof(int)))
+					if(*(LONG64*)(pFormat+offset+sizeof(LONG64))!=*(LONG64*)(pArgvCall+offset+sizeof(LONG64)))
 					{
 						OutputDebug("Client_FlowToFormat_Execute:New Data and Old Data len differ.");
 						goto Recive_Data_Client_End;
 					}
 					else
 					{
-						int len = *(int*)(pFormat+offset+sizeof(int));//会出问题
+						LONG64 len = *(LONG64*)(pFormat+offset+sizeof(LONG64));//会出问题
 
-						int stat = memcpy_s(pOldData,len,pNewData,len);
+						LONG64 stat = memcpy_s(pOldData,len,pNewData,len);
 						
 						if (stat)
 						{

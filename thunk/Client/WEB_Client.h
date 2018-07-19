@@ -4,7 +4,7 @@ class CWEB_Client :
 	public CMailSlot
 {
 private:
-	void Recive_Data(char* flow,int flow_len);
+	void Recive_Data(char* flow,LONG64 flow_len);
 	
 };
 

@@ -43,7 +43,7 @@ Client返回后的操作：可能涉及到回调。
 	同步函数使用单独的栈并返回值和修改某些内容。
 	
 	如何将参数返回？由接收者提供指针。
-	int function x()
+	LONG64 function x()
 	{
 		x.SendMessage(a,b,c,&X);
 		return X;
@@ -54,7 +54,7 @@ Client返回后的操作：可能涉及到回调。
 	//比如是int。
 		同步栈：
 		struct Stack_Node{
-			//int* ret;//返回值 == len=4;这是p[0];
+			//LONG64* ret;//返回值 == len=4;这是p[0];
 			s_p* x;
 			counteof(x);
 			Signal s;//用于通知那些工作。
@@ -62,7 +62,7 @@ Client返回后的操作：可能涉及到回调。
 		struct s_p{//可能被修改的数据串，即用于发送内容，也用于接收内容。
 		//只要告诉我需要把数据给哪个数据即可。
 			BYTE* p;
-			int	  len;
+			LONG64	  len;
 		}
 		stack<Stack_Node> p;
 
@@ -71,7 +71,7 @@ Client返回后的操作：可能涉及到回调。
 
 	异步函数使用单独的栈使用指定参数调用指定栈中回调函数。
 		异步回调函数：
-		void Function(char* p,int len);
+		void Function(char* p,LONG64 len);
 	
 		谁来提供这个参数的内容?一种方法是通过对象来处理：
 		因为对象可以自动释放？够呛。先把数据接过来再说？
@@ -100,11 +100,11 @@ struct FunctionName_Argv{
 };
 struct argc{
 	char a;
-	int    b;
+	LONG64    b;
 	_In_   BYTE* x;
-	int    len_x;
+	LONG64    len_x;
 	_Out_   BYTE* y;
-	int  len_y;
+	LONG64  len_y;
 };
 */
 
@@ -140,15 +140,15 @@ eg:
 
 	struct s_x{
 		BYTE* a;
-		int len_a;
-		int x;
+		LONG64 len_a;
+		LONG64 x;
 		BYTE* b;
-		int len_b;
+		LONG64 len_b;
 	}
 -------------------------------------------
 这个结构体编译DLL时候写的。显然它需要规范以方便我们对它的识别。
 
-BYTE* a 和 int len_a 两者是对应的关系，后者标志了前者的长度。
+BYTE* a 和 LONG64 len_a 两者是对应的关系，后者标志了前者的长度。
 在传输前这个结构会被流化，在传输到服务端后，这个结构会被复原。当然指针会变得。
 
 ！！！！所以我们的程序应当具备读.h的能力。

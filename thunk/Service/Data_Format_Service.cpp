@@ -8,7 +8,7 @@
 struct st_Async_Thread_Callback 
 {
 	LONG ID_proc;
-	int function_ID;
+	LONG64 function_ID;
 };
 //服务端 异步回调任务,线程ID为Key,要发送的数据为value.
 extern CSafeMap<DWORD,st_Async_Thread_Callback>* g_Async_Thread_Callback;
@@ -57,7 +57,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	//copy 指针
 	const st_data_flow* pFlowBase =(st_data_flow*) new char[p->flow_len]();
 
-	int stat = memcpy_s((char*)pFlowBase,p->flow_len,p->flow,p->flow_len);
+	LONG64 stat = memcpy_s((char*)pFlowBase,p->flow_len,p->flow,p->flow_len);
 	if (stat)
 	{
 		throw("memcpy_s return err.");
@@ -83,7 +83,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	
 	try
 	{
-		int real_len=Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,nullptr,0,nullptr,nullptr,nullptr);
+		LONG64 real_len=Flow2Format((char*)pFlowBase,pFlowBase->length_of_this_struct,nullptr,0,nullptr,nullptr,nullptr);
 		if (real_len==0)
 		{
 			OutputDebug("real_len=0?");
@@ -110,7 +110,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	{
 		throw(string);//内部结构错误
 	}
-	catch (int errCode)//文件格式错误忽略之
+	catch (LONG64 errCode)//文件格式错误忽略之
 	{
 		OutputDebug("Flow Format Err,code:0x%x",errCode);
 		return errCode;
@@ -124,7 +124,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	和返回值，并发送数据
 	2. 释放所有指针通过栈
 	*/
-	int funName_Len = 0;
+	LONG64 funName_Len = 0;
 	funName_Len = g_CI_Service->QueryFuncName(pFlowBase->functionID);
 	char* pFunctionName = new char[funName_Len]();
 	g_CI_Service->QueryFuncName(pFlowBase->functionID,pFunctionName);
@@ -162,8 +162,8 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	
 
 
-	typedef void (*callback_fake)(char*,int);
-	typedef int  (*called_function)(char*,callback_fake);
+	typedef void (*callback_fake)(char*,LONG64);
+	typedef LONG64  (*called_function)(char*,callback_fake);
 
 	called_function Service_Work_Function=(called_function)CalledFunction;
 
@@ -185,7 +185,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	}
 	else//同步，1.检查返回值，2.检查是否有修改参数。3.转换成流。4.发送
 	{
-		const int ret_value = Service_Work_Function(pArgvCall,nullptr);
+		const LONG64 ret_value = Service_Work_Function(pArgvCall,nullptr);
 
 		/*
 		用备份做操作体
@@ -219,7 +219,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 			//中转使用仅此而已
 			CSafeQueue<char*>* tmp_queue = new CSafeQueue<char*>();
 
-			for (int offset = 0,i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
+			for (LONG64 offset = 0,i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
 			{
 				char* p_new_data = nullptr;
 				try
@@ -237,9 +237,9 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 						  queue_memory_manage's number is Incorrect");
 
 				}
-				char* p_old_data = (char*)(*(int*)(pSecondCopyArgv+offset));
-				offset+=sizeof(int);
-				int	data_len	 = *(int*)(pSecondCopyArgv+offset);
+				char* p_old_data = (char*)(*(LONG64*)(pSecondCopyArgv+offset));
+				offset+=sizeof(LONG64);
+				LONG64	data_len	 = *(LONG64*)(pSecondCopyArgv+offset);
 
 
 				if (!((p_new_data!=nullptr&&p_old_data!=nullptr&&data_len!=0)||(p_new_data==nullptr&&p_old_data==nullptr&&data_len==0)))
@@ -251,24 +251,24 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 
 				if (nullptr!=p_old_data)
 				{
-					int ret = memcmp(p_old_data,p_new_data,data_len);
+					LONG64 ret = memcmp(p_old_data,p_new_data,data_len);
 					if (0==ret)//无改动
 					{
-						(*(int*)(pSecondCopyArgv+(offset-sizeof(int)))) = 0;//指向数据的指针设为nullptr
-						(*(int*)(pSecondCopyArgv+offset)) = 0;				//长度也必须为0.！！
+						(*(LONG64*)(pSecondCopyArgv+(offset-sizeof(LONG64)))) = 0;//指向数据的指针设为nullptr
+						(*(LONG64*)(pSecondCopyArgv+offset)) = 0;				//长度也必须为0.！！
 					}
 					else
 					{
-						(*(int*)(pSecondCopyArgv+(offset-sizeof(int)))) = (int)p_new_data;//有改动时，使用新数据
+						(*(LONG64*)(pSecondCopyArgv+(offset-sizeof(LONG64)))) = (LONG64)p_new_data;//有改动时，使用新数据
 					}
 				}
 
 
-				offset+=sizeof(int);
+				offset+=sizeof(LONG64);
 			}
 
 			//复原上面对保护队列的修改使用,为了未来可能的使用。
-			for (int i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
+			for (LONG64 i=0;i<pFlowBase->number_Of_Argv_Pointer;++i)
 			{
 				try{queue_memory_manage->push(tmp_queue->pop());}
 				catch(...)
@@ -305,8 +305,8 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 		2. Send
 		*/
 		{
-			int ID_proc = pFlowBase->ID_proc;
-			int SN		= pFlowBase->functionID;
+			LONG64 ID_proc = pFlowBase->ID_proc;
+			LONG64 SN		= pFlowBase->functionID;
 
 			//没有指针数据的情况
 			char* pStruct=nullptr;
@@ -319,18 +319,18 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 				pStruct = pSecondCopyArgv;
 			}
 			//大小调整到纯指针状态
-			int m_sizeOfStruct  = 2*sizeof(int)*pFlowBase->number_Of_Argv_Pointer;//=format_len;
+			LONG64 m_sizeOfStruct  = 2*sizeof(LONG64)*pFlowBase->number_Of_Argv_Pointer;//=format_len;
 
-			int m_pointerNumber = pFlowBase->number_Of_Argv_Pointer;
-			int work_type = CDataFormat::RECV_INFO;
-			int argvTypeOption = pFlowBase->argvTypeOption;
-			int async = false;//同步
+			LONG64 m_pointerNumber = pFlowBase->number_Of_Argv_Pointer;
+			LONG64 work_type = CDataFormat::RECV_INFO;
+			LONG64 argvTypeOption = pFlowBase->argvTypeOption;
+			LONG64 async = false;//同步
 			FARPROC callBack = nullptr;
-			int ret2client_value = ret_value;
+			LONG64 ret2client_value = ret_value;
 
 
-			//Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,int work_type,int argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,int real_len=0)
-			int realBufferLen = g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+			//Format2Flow(LONG ID_proc,LONG64 SN,char*pStruct,LONG64 sizeOfStruct,LONG64 ArgvPointerNumber,LONG64 work_type,LONG64 argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,LONG64 real_len=0)
+			LONG64 realBufferLen = g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
 				work_type,argvTypeOption,async,callBack);
 			if (0==realBufferLen)
 			{
@@ -360,14 +360,14 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	//释放对比指针结构 - 废弃代码 已经自动实现释放了
 	//if (pSecondCopyArgv!=nullptr)
 	//{
-	//	const int tmp_argv_number = pFlowBase->number_Of_Argv_Pointer;
+	//	const LONG64 tmp_argv_number = pFlowBase->number_Of_Argv_Pointer;
 
-	//	int offset = 0;
-	//	for (int i=0;i<tmp_argv_number;i++)
+	//	LONG64 offset = 0;
+	//	for (LONG64 i=0;i<tmp_argv_number;i++)
 	//	{
-	//		char* p = (char*)(*(int*)(pSecondCopyArgv+offset));
+	//		char* p = (char*)(*(LONG64*)(pSecondCopyArgv+offset));
 	//		delete(p);
-	//		offset+=sizeof(int)*2;
+	//		offset+=sizeof(LONG64)*2;
 	//	}
 	//}
 
@@ -400,14 +400,14 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 struct argv_tmp 
 {
 	char* p;
-	int p_len;
+	LONG64 p_len;
 };
 
 /*
 服务器上fack回调。
 
 */
-void CData_Format_Service::ServiceAsyncCallBack(char* p,int p_len)
+void CData_Format_Service::ServiceAsyncCallBack(char* p,LONG64 p_len)
 {
 	/*
 	1. 获取TID对应的过程ID_proc,function_ID;使用栈方式
@@ -428,7 +428,7 @@ void CData_Format_Service::ServiceAsyncCallBack(char* p,int p_len)
 	3. Web::Send
 
 	*/
-	char* pStruct = new char[2*sizeof(int)]();//struct {char* ,int len}
+	char* pStruct = new char[2*sizeof(LONG64)]();//struct {char* ,LONG64 len}
 	((argv_tmp*)pStruct)->p = p;
 	((argv_tmp*)pStruct)->p_len = p_len;
 
@@ -437,27 +437,27 @@ void CData_Format_Service::ServiceAsyncCallBack(char* p,int p_len)
 		st_Async_Thread_Callback st_thread = g_Async_Thread_Callback->pop(GetCurrentThreadId());
 
 
-		int ID_proc = st_thread.ID_proc;
-		int SN		= st_thread.function_ID;
+		LONG64 ID_proc = st_thread.ID_proc;
+		LONG64 SN		= st_thread.function_ID;
 
 
 
 		//没有指针数据的情况
 
 		//大小调整到纯指针状态
-		int number_Of_Argv_Pointer = 1;
-		int m_sizeOfStruct  = 2*sizeof(int)*number_Of_Argv_Pointer;//=format_len;
+		LONG64 number_Of_Argv_Pointer = 1;
+		LONG64 m_sizeOfStruct  = 2*sizeof(LONG64)*number_Of_Argv_Pointer;//=format_len;
 
-		int m_pointerNumber = number_Of_Argv_Pointer;
-		int work_type = CDataFormat::RECV_INFO;
-		int argvTypeOption = CDataFormat::STANDARD_FLOW_MODE;
-		int async = true;//同步
+		LONG64 m_pointerNumber = number_Of_Argv_Pointer;
+		LONG64 work_type = CDataFormat::RECV_INFO;
+		LONG64 argvTypeOption = CDataFormat::STANDARD_FLOW_MODE;
+		LONG64 async = true;//同步
 		FARPROC callBack = nullptr;
-		int ret2client_value = -1;//无效
+		LONG64 ret2client_value = -1;//无效
 
 
-		//Format2Flow(LONG ID_proc,int SN,char*pStruct,int sizeOfStruct,int ArgvPointerNumber,int work_type,int argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,int real_len=0)
-		int realBufferLen = g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
+		//Format2Flow(LONG ID_proc,LONG64 SN,char*pStruct,LONG64 sizeOfStruct,LONG64 ArgvPointerNumber,LONG64 work_type,LONG64 argvTypeOption,bool async,FARPROC callback,char* flowBuffer=nullptr,LONG64 real_len=0)
+		LONG64 realBufferLen = g_CDF.Format2Flow(ID_proc,SN,pStruct,m_sizeOfStruct,m_pointerNumber,
 			work_type,argvTypeOption,async,callBack);
 		if (0==realBufferLen)
 		{

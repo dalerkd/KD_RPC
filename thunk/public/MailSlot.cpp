@@ -65,7 +65,7 @@ unsigned int __stdcall CMailSlot::TrySend(void* pM)
 	
 	
 	char* lpSendBuffer = nullptr;
-	int SendBuffer_Len = 0;
+	LONG64 SendBuffer_Len = 0;
 	//获取数据-pop
 	for(;;)
 	{

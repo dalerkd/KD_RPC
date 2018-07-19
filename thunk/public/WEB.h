@@ -47,7 +47,7 @@ public:
 	struct st_asysnc_queue_argv 
 	{
 		char* data;
-		int data_len;
+		LONG64 data_len;
 	};
 
 
@@ -58,7 +58,7 @@ virtual void StartWork()=0;
 	2. 保存到栈里
 	3. 返回
 	*/
-	void Send(char* data,int data_len);//其实是个push而已.
+	void Send(char* data,LONG64 data_len);//其实是个push而已.
 	/*当前时刻，是否全部发送完毕
 	可被用做退出前确认数据是否发送完毕。
 	注意：无法保证别的线程不来发数据，除非每个线程都做检查哈哈。
@@ -72,7 +72,7 @@ virtual void StartWork()=0;
 	客户端通过直接调用来做
 
 	*/
-	virtual void Recive_Data(char* flow,int flow_len)=0;
+	virtual void Recive_Data(char* flow,LONG64 flow_len)=0;
 
 private:
 	/*！！！******产生异常：说明空了 exception::char*
