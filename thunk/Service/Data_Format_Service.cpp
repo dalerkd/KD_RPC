@@ -17,6 +17,8 @@ extern CFunctionInfo* g_CI_Service;
 extern CData_Format_Service g_CDF;
 extern CWEB* pCWEB;
 
+extern HMODULE hServiceDLL;
+extern const char* dllServiceName;
 
 CData_Format_Service::CData_Format_Service(void)
 {
@@ -136,14 +138,11 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 		return -0x21;
 	}
 	
-
-
 	//这里的代码需要迁移到更高层全局去。
-	char* dllName = "ServiceDLL.dll";
-	HMODULE hServiceDLL = LoadLibraryA(dllName);
+	
 	if (NULL==hServiceDLL)
 	{
-		OutputDebug("Service_FlowToFormat_Execute:Load library fault,DLLName:%s",dllName);
+		OutputDebug("Service_FlowToFormat_Execute:Load library fault,DLLName:%s", dllServiceName);
 		return -0x31;
 	}
 
@@ -152,7 +151,7 @@ unsigned int WINAPI CData_Format_Service::Service_FlowToFormat_Execute(LPVOID lp
 	
 	if (nullptr == CalledFunction)
 	{
-		OutputDebug("Service_FlowToFormat_Execute:GetProcAddress fault,DLLName:%s,functionName:%s",dllName,pFunctionName);
+		OutputDebug("Service_FlowToFormat_Execute:GetProcAddress fault,DLLName:%s,functionName:%s", dllServiceName,pFunctionName);
 		delete(pFunctionName);
 		pFunctionName = nullptr;
 		return -0x41;

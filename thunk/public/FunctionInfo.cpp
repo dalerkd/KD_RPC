@@ -2,17 +2,23 @@
 //#include "../Client/stdafx.h"
 #include "FunctionInfo.h"
 
-
+HMODULE hServiceDLL = NULL;
+const char* dllServiceName = "ServiceDLL.dll";
 
 CFunctionInfo::CFunctionInfo(void) :m_safemap(nullptr)
 {
 	m_safemap = new CSafeMap<LONG64,CFunctionInfo::st_VALUE>();
+	
+	hServiceDLL = LoadLibraryA(dllServiceName);
 }
 
 CFunctionInfo::~CFunctionInfo(void)
 {
 	delete(m_safemap);
 	m_safemap = nullptr;
+	
+	FreeLibrary(hServiceDLL);
+	hServiceDLL = NULL;
 }
 //sizeOfStruct/*参数结构体大小*/
 void CFunctionInfo::AddInfo(LONG64 SN,char* funcName,bool async,LONG64 ArgvStringNumber,LONG64 sizeOfStruct/*参数结构体大小*/)
