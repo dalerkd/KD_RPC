@@ -147,6 +147,13 @@ unsigned int __stdcall CMailSlot::ThreadReceive(PVOID pM)
 #ifdef CLIENT
 	HANDLE hSlot = CreateMailslot(L"\\\\.\\mailslot\\_RECV",0,MAILSLOT_WAIT_FOREVER,(LPSECURITY_ATTRIBUTES)NULL);
 #endif //CLIENT //客户端接受
+
+	if(INVALID_HANDLE_VALUE == hSlot)
+	{
+		OutputDebug("通讯设施初始化失败:CreateMailslot");
+		return 2;
+	}
+
 	//2.循环读取邮槽信息
 	while (bIsTrue)
 	{
@@ -203,7 +210,7 @@ unsigned int __stdcall CMailSlot::ThreadReceive(PVOID pM)
 		lpReciveBuffer = nullptr;
 
 	}
-
+	CloseHandle(hSlot);
 
 	return 0;
 }
