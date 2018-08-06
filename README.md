@@ -56,7 +56,26 @@ UserProc->Client->......网络......->Service->ServiceDLL
 3. 添加Client函数注册代码
 4. 添加Service函数注册代码
 
-
+### 详细步骤:如果你希望增加一个函数
+以下是所有需要添加的位置:
+- UserProc.cpp
+1. 如果你有指针请使用int_FUN_Standard:在其第一个参数放所有的参数,
+指针必须是:指针1,数据1长度,指针2,数据2长度.其他参数.
+如果你的函数没有指针就简单很多:
+直接用就好了eg:1号函数Add(..)
+2. 没有回调也必须用第二个参数为空来表示无回调.
+- Client.cpp
+增加一个需要增加一个假函数.
+- ServiceDLL.h
+导出服务函数
+- ServiceDLL.cpp
+真正的工作方,必须形如:
+LONG64 StartBrowser(st_argv_StartBrowser* p, RPC_CallBack cb)
+有回调时会在cb中,回调也是有两个参数:指针和它的长度.来表示所有的数据.
+- Service.cpp
+需要在Start()中添加服务函数的信息注册.
+- Client->dllmain.cpp
+需要添加服务函数的信息的注册.
 
 
 
