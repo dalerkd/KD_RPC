@@ -23,28 +23,26 @@
 
 
 ## 工程
-一共七个子工程：
+一共5个子工程：
 - Client
 客户端代理程序
-- KDRPC
-设计前期方案文本。
 - Service
 服务端代理程序
 - ServiceDLL
 服务器上工作的用户模块
-- testEverythin
-无用，这是我用来测试各种小技术的。
 - UserProc
 用户程序
-- WEB
-无用，设计时，用来测试MailSlot。
+- testEverythin
+无用，这是我用来测试各种小技术的。
 
 
-UserProc->Client->......网络......->Service->ServiceDLL
+
+UserProc< - >Client< - >......网络......< - >Service< - >ServiceDLL
 
 
-我已经添加了9种情况的测试用例。涵盖了绝大多数提供服务的情况。直接编译执行Servic后执行UserProc即可测试.
+我已经添加了9种情况的测试用例。涵盖了绝大多数提供服务的情况。直接编译所有工程并启动UserProc即可测试.
 
+调用方式形如:
 
 
 
@@ -56,7 +54,7 @@ UserProc->Client->......网络......->Service->ServiceDLL
 3. 添加Client函数注册代码
 4. 添加Service函数注册代码
 
-### 详细步骤:如果你希望增加一个函数
+### 详细步骤:如果你希望增加一个RPC函数
 以下是所有需要添加的位置:
 - UserProc.cpp
 1. 如果你有指针请使用int_FUN_Standard:在其第一个参数放所有的参数,
