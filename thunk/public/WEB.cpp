@@ -63,3 +63,8 @@ CWEB::st_asysnc_queue_argv CWEB::findAndPop()
 {
 	return m_CSQ->pop();
 }
+
+bool CWEB::IsEmpty()
+{
+	return m_CSQ->IsEmpty();
+}

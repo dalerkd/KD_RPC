@@ -67,6 +67,8 @@ virtual void StartWork()=0;
 	*/
 	bool AllSendIsFinish();
 
+
+	bool IsEmpty();
 	/*
 	服务端通过线程来做接下来的操作
 	客户端通过直接调用来做

@@ -89,6 +89,11 @@ unsigned int __stdcall CMailSlot::TrySend(void* pM)
 		{
 			//lpSendBuffer = "abcd\0\1\2\3\4";
 			//SendBuffer_Len = 9;
+			if(CMS->IsEmpty())
+			{
+				Sleep(100);
+				continue;
+			}
 			CWEB::st_asysnc_queue_argv pST = CMS->findAndPop();
 			lpSendBuffer = pST.data;
 			SendBuffer_Len = pST.data_len;
@@ -109,6 +114,13 @@ unsigned int __stdcall CMailSlot::TrySend(void* pM)
 			FILE_ATTRIBUTE_NORMAL,			//标志位
 			NULL							//文件模块(默认留空)
 			);
+
+		if (INVALID_HANDLE_VALUE == hFile)
+		{
+			OutputDebug("!!Err:发送数据时:打开通信句柄无效,详细错误Code:%d\r\n", GetLastError());
+			continue;
+		}
+
 		//2.向mailslot写入
 		DWORD dwWritten;
 		LPSTR lpMessage =lpSendBuffer;/*"UDP风暴来袭>>>>>>>>>>>"*/
