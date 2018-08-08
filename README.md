@@ -43,7 +43,27 @@ UserProc< - >Client< - >......网络......< - >Service< - >ServiceDLL
 我已经添加了9种情况的测试用例。涵盖了绝大多数提供服务的情况。直接编译所有工程并启动UserProc即可测试.
 
 调用方式形如:
+```
+        st_argv_Add tmp_Message;
+				tmp_Message.firstNumber = 5;
+				tmp_Message.secondNumber= 6;
+				LONG64 RealResult = funAdd((char*)&tmp_Message,nullptr);//两个参数-加法
+        
+        st_argv_test2 tmp_Message;
+				tmp_Message.firstStr = nullptr;
+				tmp_Message.firstStr_len = 0;
+				tmp_Message.secondStr= "SecondStr";
+				tmp_Message.secondStr_len= strlen(tmp_Message.secondStr)+1;
+				tmp_Message.other_argv_c = 1;
+				tmp_Message.f_f = (float)1.1;
+				LONG64 RealResult = funAdd((char*)&tmp_Message,nullptr);//指针(字符串)作为参数
+        
+				st_argv_Add tmp_Message;
+				tmp_Message.firstNumber = 5;
+				tmp_Message.secondNumber= 6;
+				LONG64 RealResult = funAdd((char*)&tmp_Message,Test4Callback);//两个参数-加法-将结果返回给回调Test4Callback
 
+```
 
 
 
